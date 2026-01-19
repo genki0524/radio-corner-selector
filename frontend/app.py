@@ -12,20 +12,20 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="ラジオ投稿ダッシュボード",
-    page_icon="📻",
+    page_icon="🎵",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("📻 ラジオ投稿ダッシュボード")
+st.title("ラジオ投稿ダッシュボード")
 st.markdown("日々のメモを記録し、最適なコーナーへ投稿しましょう")
 
 st.divider()
 
 # クイックメモ入力
-st.subheader("✨ クイックメモ")
+st.subheader("クイックメモ")
 col1, col2 = st.columns([4, 1])
 with col1:
     memo_content = st.text_area(
@@ -38,22 +38,22 @@ with col1:
 with col2:
     st.write("")
     st.write("")
-    if st.button("📝 追加", use_container_width=True, type="primary"):
+    if st.button("追加", use_container_width=True, type="primary"):
         if memo_content.strip():
             try:
                 api_client.create_memo(memo_content)
-                st.success("✅ メモを追加しました！")
+                st.success("メモを追加しました！")
                 st.balloons()
                 st.rerun()
             except Exception as e:
-                st.error(f"❌ エラー: {e}")
+                st.error(f"エラー: {e}")
         else:
-            st.warning("⚠️ メモの内容を入力してください")
+            st.warning("メモの内容を入力してください")
 
 st.divider()
 
 # 統計カード
-st.subheader("📊 投稿統計")
+st.subheader("投稿統計")
 try:
     stats = api_client.get_mail_stats()
     draft_count = stats.get("draft", 0)
@@ -113,12 +113,12 @@ with col4:
 st.divider()
 
 # 最近のメモ
-st.subheader("📝 最近のメモ")
+st.subheader("最近のメモ")
 try:
     memos = api_client.get_memos(limit=3)
     
     if not memos:
-        st.info("📭 メモがありません。新しいメモを作成してください。")
+        st.info("メモがありません。新しいメモを作成してください。")
     else:
         for memo in memos:
             from datetime import datetime
@@ -141,25 +141,25 @@ except Exception as e:
 
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("📋 すべてのメモを見る", use_container_width=True):
-        st.switch_page("pages/1_📝_メモ一覧.py")
+    if st.button("すべてのメモを見る", use_container_width=True):
+        st.switch_page("pages/1_memos.py")
 with col2:
-    if st.button("📻 番組管理", use_container_width=True):
-        st.switch_page("pages/2_📻_番組管理.py")
+    if st.button("番組管理", use_container_width=True):
+        st.switch_page("pages/2_programs.py")
 
 # サイドバー
 with st.sidebar:
-    st.header("🎯 クイックアクション")
-    if st.button("➕ 新規メモ作成", use_container_width=True, type="primary"):
-        st.switch_page("pages/1_📝_メモ一覧.py")
-    if st.button("✉️ メール作成", use_container_width=True):
-        st.switch_page("pages/3_✉️_メール作成.py")
-    if st.button("📻 番組を追加", use_container_width=True):
-        st.switch_page("pages/2_📻_番組管理.py")
+    st.header("クイックアクション")
+    if st.button("新規メモ作成", use_container_width=True, type="primary"):
+        st.switch_page("pages/1_memos.py")
+    if st.button("メール作成", use_container_width=True):
+        st.switch_page("pages/3_mail.py")
+    if st.button("番組を追加", use_container_width=True):
+        st.switch_page("pages/2_programs.py")
     
     st.divider()
     
-    st.header("📚 ヘルプ")
+    st.header("ヘルプ")
     st.markdown("""
     **使い方:**
     1. メモを記録する
