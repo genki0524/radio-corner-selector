@@ -214,3 +214,6 @@ pyrightconfig.json
 *.sqlite3
 *.db-journal
 *.db-wal
+
+.serena
+.vscode
