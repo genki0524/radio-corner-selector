@@ -1,6 +1,42 @@
 services:
-  frontend:
   backend:
-  db:
-  
-    
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: radio-selector-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./radio_corner_selector.db
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=gemini-pro
+      - APP_NAME=Radio Corner Selector API
+      - DEBUG=True
+      - CORS_ORIGINS=http://localhost:8501,http://frontend:8501
+    volumes:
+      - ./backend:/app
+      - ./db:/app/db
+    networks:
+      - radio-selector-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: radio-selector-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    volumes:
+      - ./frontend:/app
+    networks:
+      - radio-selector-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  radio-selector-network:
+    driver: bridge

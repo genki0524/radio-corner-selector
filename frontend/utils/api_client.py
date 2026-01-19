@@ -1,6 +1,7 @@
 """
 バックエンドAPI通信クライアント
 """
+import os
 import requests
 from typing import List, Dict, Any, Optional
 from datetime import datetime
@@ -9,7 +10,9 @@ from datetime import datetime
 class APIClient:
     """バックエンドAPIとの通信を管理するクライアント"""
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = None):
+        if base_url is None:
+            base_url = os.getenv("BACKEND_URL", "http://localhost:8000")
         self.base_url = base_url
         self.api_base = f"{base_url}/api"
         self.user_id = 1  # デフォルトユーザーID（認証実装後に変更）
