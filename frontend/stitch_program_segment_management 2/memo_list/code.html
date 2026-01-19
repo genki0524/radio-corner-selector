@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>メモ一覧 - ラジオ投稿管理</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Sans JP", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 ios-blur border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between max-w-lg mx-auto">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">person</span>
+</div>
+<h1 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center">メモ一覧</h1>
+<div class="flex w-10 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 w-10 bg-transparent text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-lg mx-auto pb-24">
+<div class="px-4 py-4">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-stretch rounded-xl h-12 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="text-slate-400 flex items-center justify-center pl-4">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full border-none bg-transparent focus:ring-0 text-base font-normal placeholder:text-slate-400 px-4 pl-2" placeholder="メモを検索..." value=""/>
+</div>
+</label>
+</div>
+<div class="px-4 pb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">フィルター</div>
+<div class="flex gap-3 px-4 pb-6 overflow-x-auto no-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white px-5 shadow-sm shadow-primary/20">
+<span class="text-sm font-semibold">すべて</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-5">
+<span class="text-sm font-medium">未処理</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-5">
+<span class="text-sm font-medium">振り分け済み</span>
+</button>
+</div>
+<div class="space-y-1 px-2">
+<div class="flex flex-col gap-1 bg-white dark:bg-slate-900/40 p-4 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 text-primary p-2">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<span class="text-xs font-bold tracking-wider text-primary">状態：振り分け済み • モーニングショー</span>
+</div>
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+<h3 class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-snug">モーニングショーへのリスナーフィードバック</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal line-clamp-2 leading-relaxed">
+                先週末に開催された地域のチャリティランについての話題がありました。優勝者へのインタビューを提案しています...
+            </p>
+<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50">
+<p class="text-slate-400 dark:text-slate-500 text-xs font-medium">作成日：今日 10:30 AM</p>
+<div class="flex -space-x-1">
+<div class="h-6 w-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px]">mic</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1 bg-white dark:bg-slate-900/40 p-4 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 p-2">
+<span class="material-symbols-outlined text-[20px]">pending_actions</span>
+</div>
+<span class="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-500">状態：未処理</span>
+</div>
+</div>
+<h3 class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-snug">交通情報アップデート - メインストリート</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal line-clamp-2 leading-relaxed">
+                来週月曜からメインストリートで新しい工事が始まります。午前8時から10時の間は激しい渋滞が予想されます。
+            </p>
+<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50">
+<p class="text-slate-400 dark:text-slate-500 text-xs font-medium">作成日：今日 09:15 AM</p>
+</div>
+</div>
+<div class="flex flex-col gap-1 bg-white dark:bg-slate-900/40 p-4 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 text-primary p-2">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<span class="text-xs font-bold tracking-wider text-primary">状態：振り分け済み • スポーツコーナー</span>
+</div>
+<div class="size-2 rounded-full bg-primary"></div>
+</div>
+<h3 class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-snug">高校サッカーの結果</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal line-clamp-2 leading-relaxed">
+                昨夜のプレーオフ最終スコア。中央高校 2-1 西高校。後半終了間際の劇的な逆転ゴール。
+            </p>
+<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50">
+<p class="text-slate-400 dark:text-slate-500 text-xs font-medium">作成日：昨日 11:45 PM</p>
+<div class="flex -space-x-1">
+<div class="h-6 w-6 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px]">sports_soccer</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1 bg-white dark:bg-slate-900/40 p-4 rounded-2xl border border-transparent hover:border-slate-200 dark:hover:border-slate-800 transition-colors">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 p-2">
+<span class="material-symbols-outlined text-[20px]">pending_actions</span>
+</div>
+<span class="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-500">状態：未処理</span>
+</div>
+</div>
+<h3 class="text-slate-900 dark:text-slate-100 text-base font-semibold leading-snug">気象警報：降雨の可能性</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal line-clamp-2 leading-relaxed">
+                気象庁から盆地エリアにフラッシュフラッドの警戒が出ています。屋外インタビューを屋内に変更すべきか？
+            </p>
+<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50">
+<p class="text-slate-400 dark:text-slate-500 text-xs font-medium">作成日：10月23日 04:20 PM</p>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-20 right-6 z-50">
+<button class="flex items-center justify-center gap-2 rounded-full bg-primary text-white px-6 h-14 shadow-lg shadow-primary/40 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[24px]">add</span>
+<span class="text-sm font-bold">メモを追加</span>
+</button>
+</div>
+<footer class="fixed bottom-0 left-0 right-0 bg-background-light/90 dark:bg-background-dark/90 ios-blur border-t border-slate-200 dark:border-slate-800 pb-safe z-50">
+<div class="max-w-lg mx-auto flex justify-around py-3">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined">description</span>
+<span class="text-[10px] font-medium">メモ</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-medium">Gemini解析</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">radio</span>
+<span class="text-[10px] font-medium">コーナー</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium">履歴</span>
+</button>
+</div>
+</footer>
+
+</body></html>

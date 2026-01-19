@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>プロフィール設定</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-dark": "#1c2127",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans JP", "sans-serif"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for cleaner mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-900 dark:text-white transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-4 border-b border-gray-200 dark:border-gray-800">
+<button class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full active:bg-gray-200 dark:active:bg-gray-800 transition-colors text-gray-900 dark:text-white">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="text-lg font-bold leading-tight flex-1 text-center pr-8">プロフィール設定</h1>
+</header>
+<!-- Main Form Content -->
+<main class="flex-1 flex flex-col gap-6 p-5 pb-32 max-w-lg mx-auto w-full">
+<!-- Radio Name Input -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="radio-name">
+                    ラジオネーム
+                    <span class="ml-1 text-xs text-primary font-normal bg-primary/10 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                        AI仕分け用
+                    </span>
+</label>
+<input class="form-input w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-surface-light dark:bg-surface-dark text-gray-900 dark:text-white h-14 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600" id="radio-name" placeholder="例: DJマイク" type="text" value="DJマイク"/>
+<p class="text-xs text-gray-500 dark:text-gray-400 px-1">
+                    番組への投稿時に使用される名前です。Geminiはこの名前を使ってあなたの投稿を認識します。
+                </p>
+</div>
+<!-- Real Name Input -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="real-name">本名</label>
+<input class="form-input w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-surface-light dark:bg-surface-dark text-gray-900 dark:text-white h-14 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600" id="real-name" placeholder="例: 山田 太郎" type="text"/>
+</div>
+<!-- Phone Number Input -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="phone">電話番号</label>
+<input class="form-input w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-surface-light dark:bg-surface-dark text-gray-900 dark:text-white h-14 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600" id="phone" placeholder="090-1234-5678" type="tel"/>
+</div>
+<div class="h-px bg-gray-200 dark:bg-gray-800 my-1"></div>
+<!-- Address Section -->
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="postcode">郵便番号</label>
+<div class="relative">
+<input class="form-input w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-surface-light dark:bg-surface-dark text-gray-900 dark:text-white h-14 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 pr-12" id="postcode" inputmode="numeric" placeholder="123-4567" type="text"/>
+<button class="absolute right-2 top-2 bottom-2 px-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-xs font-bold rounded-lg text-gray-600 dark:text-gray-300 transition-colors">
+                            検索
+                        </button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="address">住所</label>
+<textarea class="form-textarea w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-surface-light dark:bg-surface-dark text-gray-900 dark:text-white min-h-[100px] p-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600 resize-none" id="address" placeholder="都道府県、市区町村、番地、建物名など"></textarea>
+</div>
+</div>
+<!-- Signature Preview Card -->
+<div class="mt-4">
+<div class="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-surface-light dark:bg-surface-dark shadow-sm">
+<div class="bg-gray-50 dark:bg-[#242a33] px-5 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+<h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">signature</span>
+                            署名プレビュー
+                        </h3>
+<span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Footer</span>
+</div>
+<div class="p-5">
+<div class="font-mono text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+<p><span class="opacity-50 select-none">RN: </span><span class="text-gray-900 dark:text-white font-medium">DJマイク</span></p>
+<p><span class="opacity-50 select-none">氏名: </span><span class="text-gray-900 dark:text-white">山田 太郎</span></p>
+<p><span class="opacity-50 select-none">住所: </span><span>〒123-4567 東京都渋谷区神南1-1-1</span></p>
+<p><span class="opacity-50 select-none">Tel: </span><span>090-1234-5678</span></p>
+</div>
+</div>
+<div class="bg-primary/5 px-5 py-2">
+<p class="text-[10px] text-primary/80 text-center">
+                            この署名はメールの末尾に自動的に挿入されます
+                        </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Action -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50">
+<div class="max-w-lg mx-auto">
+<button class="w-full bg-primary hover:bg-blue-600 text-white font-bold h-14 rounded-xl shadow-lg shadow-blue-900/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+                    保存する
+                </button>
+</div>
+</div>
+</div>
+</body></html>

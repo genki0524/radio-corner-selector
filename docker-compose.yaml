@@ -1,6 +1,6 @@
 services:
-  python:
-    build: .
-    volumes:
-      - .:/app
+  frontend:
+  backend:
+  db:
+  
     
