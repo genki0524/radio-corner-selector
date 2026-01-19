@@ -12,19 +12,19 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="プロフィール設定",
-    page_icon="👤",
+    page_icon="👥",
     layout="wide",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("👤 プロフィール設定")
+st.title("プロフィール設定")
 st.markdown("番組投稿時に使用するプロフィール（署名）を管理します")
 
 st.divider()
 
 # 新規プロフィール作成
-with st.expander("➕ 新しいプロフィールを作成", expanded=False):
+with st.expander("新しいプロフィールを作成", expanded=False):
     st.markdown("#### プロフィール情報")
     
     new_profile_name = st.text_input("管理用名称", placeholder="例: メインプロフィール", key="new_profile_name")
@@ -41,7 +41,7 @@ with st.expander("➕ 新しいプロフィールを作成", expanded=False):
     
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
-        if st.button("💾 保存", type="primary", use_container_width=True, key="save_profile"):
+        if st.button("保存", type="primary", use_container_width=True, key="save_profile"):
             if new_profile_name and new_profile_radio_name:
                 try:
                     profile_data = {
@@ -52,15 +52,15 @@ with st.expander("➕ 新しいプロフィールを作成", expanded=False):
                         "phone": new_profile_phone or None,
                     }
                     api_client.create_profile(profile_data)
-                    st.success("✅ プロフィールを保存しました！")
+                    st.success("プロフィールを保存しました！")
                     st.balloons()
                     st.rerun()
                 except Exception as e:
-                    st.error(f"❌ 保存エラー: {e}")
+                    st.error(f"保存エラー: {e}")
             else:
-                st.warning("⚠️ 管理用名称とラジオネームは必須です")
+                st.warning("管理用名称とラジオネームは必須です")
     with col2:
-        if st.button("❌ キャンセル", use_container_width=True, key="cancel_profile"):
+        if st.button("キャンセル", use_container_width=True, key="cancel_profile"):
             st.rerun()
 
 st.divider()
@@ -69,13 +69,13 @@ st.divider()
 try:
     profiles = api_client.get_profiles()
     
-    st.markdown(f"### 📋 登録済みプロフィール ({len(profiles)}件)")
+    st.markdown(f"### 登録済みプロフィール ({len(profiles)}件)")
     
     if not profiles:
-        st.info("📭 プロフィールが登録されていません。新しいプロフィールを作成してください。")
+        st.info("プロフィールが登録されていません。新しいプロフィールを作成してください。")
     else:
         for profile in profiles:
-            with st.expander(f"👤 {profile['name']}", expanded=False):
+            with st.expander(f"{profile['name']}", expanded=False):
                 col1, col2 = st.columns([3, 1])
                 
                 with col1:
@@ -83,7 +83,7 @@ try:
                         f"""
                         <div class="card">
                             <h4 style="color: #2b8cee; font-size: 1.1rem; margin-bottom: 1rem;">
-                                📝 {profile['name']}
+                                {profile['name']}
                             </h4>
                             
                             <div style="margin-bottom: 0.75rem;">
@@ -119,20 +119,20 @@ try:
                 with col2:
                     st.write("")
                     st.write("")
-                    if st.button("✏️ 編集", key=f"edit_profile_{profile['id']}", use_container_width=True):
+                    if st.button("編集", key=f"edit_profile_{profile['id']}", use_container_width=True):
                         st.info("編集機能は実装予定です")
-                    if st.button("🗑️ 削除", key=f"delete_profile_{profile['id']}", use_container_width=True):
+                    if st.button("削除", key=f"delete_profile_{profile['id']}", use_container_width=True):
                         try:
                             api_client.delete_profile(profile['id'])
-                            st.success("✅ プロフィールを削除しました")
+                            st.success("プロフィールを削除しました")
                             st.rerun()
                         except Exception as e:
-                            st.error(f"❌ 削除エラー: {e}")
+                            st.error(f"削除エラー: {e}")
                 
                 st.markdown("---")
                 
                 # プレビュー
-                st.markdown("#### 📧 メール署名プレビュー")
+                st.markdown("#### メール署名プレビュー")
                 signature = f"""ラジオネーム: {profile['radio_name']}"""
                 if profile.get('real_name'):
                     signature += f"\n本名: {profile['real_name']}"
@@ -147,7 +147,7 @@ except Exception as e:
 
 # サイドバー
 with st.sidebar:
-    st.header("📊 統計情報")
+    st.header("統計情報")
     try:
         total_profiles = len(api_client.get_profiles())
         st.metric("総プロフィール数", f"{total_profiles}件")
@@ -156,7 +156,7 @@ with st.sidebar:
     
     st.divider()
     
-    st.header("💡 ヒント")
+    st.header("ヒント")
     st.markdown("""
     **プロフィールの使い分け:**
     - 番組ごとに異なるプロフィールを使用できます
@@ -166,8 +166,8 @@ with st.sidebar:
     
     st.divider()
     
-    st.header("🔧 操作")
-    if st.button("🏠 ダッシュボードへ", use_container_width=True):
+    st.header("操作")
+    if st.button("ダッシュボードへ", use_container_width=True):
         st.switch_page("app.py")
-    if st.button("✉️ メール作成", use_container_width=True, type="primary"):
-        st.switch_page("pages/3_✉️_メール作成.py")
+    if st.button("メール作成", use_container_width=True, type="primary"):
+        st.switch_page("pages/3_mail.py")

@@ -12,13 +12,13 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="メール作成",
-    page_icon="✉️",
+    page_icon="📧",
     layout="wide",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("✉️ メール作成・投稿設定")
+st.title("メール作成・投稿設定")
 
 # セッション状態の初期化
 if "selected_memo_id" not in st.session_state:
@@ -31,7 +31,7 @@ if "mail_body" not in st.session_state:
     st.session_state["mail_body"] = ""
 
 # メモ選択
-st.subheader("📝 元ネタのメモを選択")
+st.subheader("元ネタのメモを選択")
 try:
     memos = api_client.get_memos()
     memo_options = ["メモを選択してください"] + [f"ID:{m['id']} - {m['content'][:50]}..." for m in memos]
@@ -49,7 +49,7 @@ st.divider()
 
 # AIによるコーナー推奨
 if selected_memo:
-    st.subheader("🤖 AI解析による推奨コーナー")
+    st.subheader("AI解析による推奨コーナー")
     
     try:
         # LLM解析を実行
@@ -67,7 +67,7 @@ if selected_memo:
                     <div style="background: linear-gradient(135deg, rgba(43, 140, 238, 0.1) 0%, rgba(43, 140, 238, 0.2) 100%); 
                                 border: 2px solid #2b8cee; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                            <span style="font-size: 1.5rem;">✨</span>
+                            <span style="font-size: 1.5rem;">⭐</span>
                             <span style="color: #2b8cee; font-weight: 700; font-size: 0.875rem;">AI推奨コーナー</span>
                             <span class="badge badge-primary">一致度: {score_percent}%</span>
                         </div>
@@ -85,7 +85,7 @@ if selected_memo:
             with col2:
                 st.write("")
                 st.write("")
-                if st.button("✅ このコーナーに投稿", type="primary", use_container_width=True, key="use_recommended"):
+                if st.button("このコーナーに投稿", type="primary", use_container_width=True, key="use_recommended"):
                     st.session_state["selected_corner_id"] = recommended_corner['corner_id']
                     st.session_state["selected_program_id"] = recommended_corner['program_id']
                     st.success("コーナーを選択しました！")
@@ -97,7 +97,7 @@ if selected_memo:
 st.divider()
 
 # 手動でコーナーを選択
-st.subheader("📻 コーナーを手動で選択")
+st.subheader("コーナーを手動で選択")
 try:
     programs = api_client.get_programs()
     program_titles = ["番組を選択してください"] + [p['title'] for p in programs]
@@ -117,14 +117,14 @@ try:
                 if selected_corner:
                     st.session_state["selected_corner_id"] = selected_corner['id']
                     st.session_state["selected_program_id"] = selected_program['id']
-                    st.info(f"📧 投稿先: {selected_program.get('email_address', 'N/A')}")
+                    st.info(f"投稿先: {selected_program.get('email_address', 'N/A')}")
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
 
 st.divider()
 
 # メール作成
-st.subheader("✉️ メール内容")
+st.subheader("メール内容")
 
 col1, col2 = st.columns([3, 1])
 
@@ -146,8 +146,8 @@ with col1:
 with col2:
     st.write("")
     st.write("")
-    if st.button("👤 プロフィール管理", use_container_width=True):
-        st.switch_page("pages/4_👤_プロフィール設定.py")
+    if st.button("プロフィール管理", use_container_width=True):
+        st.switch_page("pages/4_profiles.py")
 
 # メール件名
 mail_subject = st.text_input(
@@ -179,7 +179,7 @@ st.session_state["mail_body"] = mail_body
 st.divider()
 
 # ステータス選択
-st.subheader("📊 ステータス")
+st.subheader("ステータス")
 mail_status = st.radio(
     "メールのステータス",
     ["下書き", "送信済み", "採用", "不採用"],
@@ -192,7 +192,7 @@ st.divider()
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    if st.button("💾 下書き保存", type="secondary", use_container_width=True, key="save_draft"):
+    if st.button("下書き保存", type="secondary", use_container_width=True, key="save_draft"):
         if st.session_state.get("selected_corner_id") and mail_subject and mail_body:
             try:
                 mail_data = {
@@ -203,39 +203,39 @@ with col1:
                     "status": mail_status,
                 }
                 api_client.create_mail(mail_data)
-                st.success("✅ 下書きを保存しました")
+                st.success("下書きを保存しました")
             except Exception as e:
-                st.error(f"❌ 保存エラー: {e}")
+                st.error(f"保存エラー: {e}")
         else:
-            st.warning("⚠️ コーナー、件名、本文を入力してください")
+            st.warning("コーナー、件名、本文を入力してください")
 
 with col2:
-    if st.button("📧 メーラーで開く", type="primary", use_container_width=True, key="open_mailer"):
+    if st.button("メーラーで開く", type="primary", use_container_width=True, key="open_mailer"):
         if selected_program and mail_subject and mail_body:
             try:
                 import urllib.parse
                 email_address = selected_program.get('email_address', '')
                 mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(mail_subject)}&body={urllib.parse.quote(mail_body)}"
                 st.markdown(f"[メーラーを起動]({mailto_link})")
-                st.success("✅ メーラーを起動します")
+                st.success("メーラーを起動します")
             except Exception as e:
-                st.error(f"❌ エラー: {e}")
+                st.error(f"エラー: {e}")
         else:
-            st.warning("⚠️ 番組とコーナーを選択し、件名と本文を入力してください")
+            st.warning("番組とコーナーを選択し、件名と本文を入力してください")
 
 with col3:
-    if st.button("🔄 リセット", use_container_width=True):
+    if st.button("リセット", use_container_width=True):
         st.session_state["mail_subject"] = ""
         st.session_state["mail_body"] = ""
         st.rerun()
 
 with col4:
-    if st.button("❌ キャンセル", use_container_width=True):
+    if st.button("キャンセル", use_container_width=True):
         st.switch_page("app.py")
 
 # サイドバー
 with st.sidebar:
-    st.header("📋 メモ内容")
+    st.header("メモ内容")
     if selected_memo:
         from datetime import datetime
         created_at = datetime.fromisoformat(selected_memo['created_at'].replace('Z', '+00:00'))
@@ -257,8 +257,8 @@ with st.sidebar:
     
     st.divider()
     
-    st.header("🔧 操作")
-    if st.button("🏠 ダッシュボードへ", use_container_width=True):
+    st.header("操作")
+    if st.button("ダッシュボードへ", use_container_width=True):
         st.switch_page("app.py")
-    if st.button("📝 メモ一覧", use_container_width=True):
-        st.switch_page("pages/1_📝_メモ一覧.py")
+    if st.button("メモ一覧", use_container_width=True):
+        st.switch_page("pages/1_memos.py")

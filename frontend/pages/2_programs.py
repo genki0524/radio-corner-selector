@@ -12,16 +12,16 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="番組管理",
-    page_icon="📻",
+    page_icon="📺",
     layout="wide",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("📻 番組・コーナー管理")
+st.title("番組・コーナー管理")
 
 # 番組検索・フィルター
-st.subheader("🔍 番組を絞り込む")
+st.subheader("番組を絞り込む")
 col1, col2 = st.columns(2)
 
 with col1:
@@ -43,7 +43,7 @@ with col2:
 st.divider()
 
 # 新規番組登録
-with st.expander("➕ 新規番組を登録", expanded=False):
+with st.expander("新規番組を登録", expanded=False):
     st.markdown("#### 基本情報")
     
     new_program_title = st.text_input("番組名", placeholder="例: オールナイトニッポン", key="new_program_title")
@@ -79,7 +79,7 @@ with st.expander("➕ 新規番組を登録", expanded=False):
     
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
-        if st.button("💾 登録", type="primary", use_container_width=True, key="create_program_btn"):
+        if st.button("登録", type="primary", use_container_width=True, key="create_program_btn"):
             if new_program_title and new_program_email:
                 try:
                     # パーソナリティIDを取得
@@ -97,15 +97,15 @@ with st.expander("➕ 新規番組を登録", expanded=False):
                     }
                     
                     api_client.create_program(program_data)
-                    st.success("✅ 番組を登録しました！")
+                    st.success("番組を登録しました！")
                     st.balloons()
                     st.rerun()
                 except Exception as e:
-                    st.error(f"❌ 登録エラー: {e}")
+                    st.error(f"登録エラー: {e}")
             else:
-                st.warning("⚠️ 番組名とメールアドレスは必須です")
+                st.warning("番組名とメールアドレスは必須です")
     with col2:
-        if st.button("❌ キャンセル", use_container_width=True, key="cancel_program_btn"):
+        if st.button("キャンセル", use_container_width=True, key="cancel_program_btn"):
             st.rerun()
 
 st.divider()
@@ -127,37 +127,37 @@ try:
         search=program_search if program_search else None
     )
     
-    st.markdown(f"### 📋 登録済み番組 ({len(programs)}件)")
+    st.markdown(f"### 登録済み番組 ({len(programs)}件)")
     
     if not programs:
-        st.info("📭 番組が登録されていません。新しい番組を登録してください。")
+        st.info("番組が登録されていません。新しい番組を登録してください。")
     else:
         for program in programs:
-            with st.expander(f"📻 {program['title']}", expanded=False):
+            with st.expander(f"{program['title']}", expanded=False):
                 col1, col2 = st.columns([2, 1])
                 
                 with col1:
-                    st.markdown(f"**📧 メールアドレス:** {program.get('email_address', 'N/A')}")
-                    st.markdown(f"**📅 放送スケジュール:** {program.get('broadcast_schedule', 'N/A')}")
+                    st.markdown(f"**メールアドレス:** {program.get('email_address', 'N/A')}")
+                    st.markdown(f"**放送スケジュール:** {program.get('broadcast_schedule', 'N/A')}")
                     
                     # パーソナリティ表示
                     personality_names = [p['name'] for p in program.get('personalities', [])]
                     if personality_names:
-                        st.markdown(f"**🎙️ パーソナリティ:** {', '.join(personality_names)}")
+                        st.markdown(f"**パーソナリティ:** {', '.join(personality_names)}")
                 
                 with col2:
-                    if st.button("✏️ 編集", key=f"edit_program_{program['id']}", use_container_width=True):
+                    if st.button("編集", key=f"edit_program_{program['id']}", use_container_width=True):
                         st.info("編集機能は実装予定です")
-                    if st.button("🗑️ 削除", key=f"delete_program_{program['id']}", use_container_width=True):
+                    if st.button("削除", key=f"delete_program_{program['id']}", use_container_width=True):
                         try:
                             api_client.delete_program(program['id'])
-                            st.success("✅ 番組を削除しました")
+                            st.success("番組を削除しました")
                             st.rerun()
                         except Exception as e:
-                            st.error(f"❌ 削除エラー: {e}")
+                            st.error(f"削除エラー: {e}")
                 
                 st.markdown("---")
-                st.markdown("#### 📝 コーナー一覧")
+                st.markdown("#### コーナー一覧")
                 
                 corners = program.get('corners', [])
                 
@@ -168,7 +168,7 @@ try:
                         st.markdown(
                             f"""
                             <div class="corner-card">
-                                <h4>✨ {corner['title']}</h4>
+                                <h4>{corner['title']}</h4>
                                 <div class="corner-description">
                                     <strong>AI解析用説明:</strong><br>
                                     {corner['description_for_llm']}
@@ -178,14 +178,14 @@ try:
                             unsafe_allow_html=True,
                         )
                 
-                if st.button(f"➕ コーナーを追加", key=f"add_corner_{program['id']}", use_container_width=True):
+                if st.button(f"コーナーを追加", key=f"add_corner_{program['id']}", use_container_width=True):
                     st.info("コーナー追加機能は実装予定です")
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
 
 # サイドバー
 with st.sidebar:
-    st.header("📊 統計情報")
+    st.header("統計情報")
     try:
         total_programs = len(api_client.get_programs())
         total_personalities = len(api_client.get_personalities())
@@ -198,8 +198,8 @@ with st.sidebar:
     
     st.divider()
     
-    st.header("🔧 操作")
-    if st.button("🏠 ダッシュボードへ", use_container_width=True):
+    st.header("操作")
+    if st.button("ダッシュボードへ", use_container_width=True):
         st.switch_page("app.py")
-    if st.button("📝 メモ一覧", use_container_width=True):
-        st.switch_page("pages/1_📝_メモ一覧.py")
+    if st.button("メモ一覧", use_container_width=True):
+        st.switch_page("pages/1_memos.py")
