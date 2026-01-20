@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-pro"
     
+    # LangChain & LLM Settings
+    # HuggingFace Embedding Model
+    embedding_model_name: str = "intfloat/multilingual-e5-large"
+    embedding_dimension: int = 1024
+    
+    # Ollama LLM Settings
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen2.5:latest"
+    ollama_temperature: float = 0.7
+    
     # アプリケーション
     app_name: str = "Radio Corner Selector API"
     debug: bool = True

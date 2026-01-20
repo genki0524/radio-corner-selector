@@ -2,8 +2,9 @@
 コーナーリポジトリ実装
 Repository Interfaceの具体的な実装
 """
-from typing import List, Optional
+from typing import List, Optional, Dict
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from models import Corner, Program
 from domain.repositories.corner_repository import CornerRepositoryInterface
@@ -102,6 +103,60 @@ class CornerRepositoryImpl(CornerRepositoryInterface):
     def get_by_program_id(self, program_id: int) -> List[Corner]:
         """番組IDでコーナー一覧を取得（後方互換性のため）"""
         return self._db.query(Corner).filter(Corner.program_id == program_id).all()
+    
+    def find_by_vector_similarity(
+        self,
+        query_vector: List[float],
+        user_id: int,
+        limit: int = 10
+    ) -> List[Dict]:
+        """
+        ベクトル類似度検索
+        
+        Args:
+            query_vector: 検索クエリベクトル
+            user_id: ユーザーID（検索範囲を限定）
+            limit: 返却する最大件数
+            
+        Returns:
+            類似度順のコーナーリスト（similarity含む）
+        """
+        # pgvectorの<=>演算子を使用してコサイン距離を計算
+        # コサイン距離 = 1 - コサイン類似度なので、類似度に変換
+        query = text("""
+            SELECT 
+                c.id,
+                c.title,
+                c.description_for_llm,
+                c.program_id,
+                1 - (c.embedded_description <=> :query_vector) as similarity
+            FROM corners c
+            JOIN programs p ON c.program_id = p.id
+            WHERE p.user_id = :user_id
+            ORDER BY c.embedded_description <=> :query_vector
+            LIMIT :limit
+        """)
+        
+        result = self._db.execute(
+            query,
+            {
+                "query_vector": query_vector,
+                "user_id": user_id,
+                "limit": limit
+            }
+        )
+        
+        corners = []
+        for row in result:
+            corners.append({
+                "id": row.id,
+                "title": row.title,
+                "description_for_llm": row.description_for_llm,
+                "program_id": row.program_id,
+                "similarity": float(row.similarity)
+            })
+        
+        return corners
     
     @staticmethod
     def _to_entity(db_corner: Corner) -> CornerEntity:

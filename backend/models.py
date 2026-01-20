@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from sqlalchemy import ForeignKey, String, Text, DateTime, Table, Column, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 
 from database import Base
 
@@ -98,6 +99,7 @@ class Corner(Base):
     program_id: Mapped[int] = mapped_column(ForeignKey("programs.id"))
     title: Mapped[str] = mapped_column(String(255))  # コーナー名
     description_for_llm: Mapped[str] = mapped_column(Text)  # LLM用コーナー説明
+    embedded_description: Mapped[list[float]] = mapped_column(Vector(1024))  # intfloat/multilingual-e5-largeは1024次元
     
     # リレーション
     program: Mapped["Program"] = relationship(back_populates="corners")

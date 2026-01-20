@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from cruds.corner_repository_impl import CornerRepositoryImpl
 from domain.repositories.corner_repository import CornerRepositoryInterface
 from schemas import CornerCreate, CornerUpdate, CornerResponse
+from services.langchain_service import EmbeddingService
 
 
 def _get_repository(db: Session) -> CornerRepositoryInterface:
@@ -31,7 +32,14 @@ def get_corner(db: Session, corner_id: int) -> Optional[CornerResponse]:
 def create_corner(db: Session, corner: CornerCreate) -> CornerResponse:
     """コーナーを作成"""
     repo = _get_repository(db)
-    return repo.create_from_dict(corner.model_dump())
+    corner_data = corner.model_dump()
+    
+    # 埋め込みベクトルを生成
+    embedding_service = EmbeddingService()
+    embedded_description = embedding_service.embed_text(corner_data["description_for_llm"])
+    corner_data["embedded_description"] = embedded_description
+    
+    return repo.create_from_dict(corner_data)
 
 
 def update_corner(
@@ -41,7 +49,15 @@ def update_corner(
 ) -> Optional[CornerResponse]:
     """コーナーを更新"""
     repo = _get_repository(db)
-    return repo.update_from_dict(corner_id, corner.model_dump(exclude_unset=True))
+    corner_data = corner.model_dump(exclude_unset=True)
+    
+    # description_for_llmが更新される場合は埋め込みベクトルも更新
+    if "description_for_llm" in corner_data:
+        embedding_service = EmbeddingService()
+        embedded_description = embedding_service.embed_text(corner_data["description_for_llm"])
+        corner_data["embedded_description"] = embedded_description
+    
+    return repo.update_from_dict(corner_id, corner_data)
 
 
 def delete_corner(db: Session, corner_id: int) -> bool:

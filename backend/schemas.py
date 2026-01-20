@@ -207,3 +207,45 @@ class MailStatsResponse(BaseModel):
     sent: int
     accepted: int
     rejected: int
+
+
+# ========== Corner Recommendation ==========
+class CornerRecommendationRequest(BaseModel):
+    """コーナー推薦リクエスト"""
+    memo_content: str = Field(..., description="メモの内容")
+    user_id: int = Field(..., description="ユーザーID")
+    top_k: int = Field(default=10, ge=1, le=50, description="候補数")
+    use_llm: bool = Field(default=True, description="LLM推論を使用するか")
+    final_results: int = Field(default=3, ge=1, le=10, description="最終結果数")
+
+
+class CornerRecommendationResponse(BaseModel):
+    """コーナー推薦レスポンス"""
+    id: int
+    title: str
+    description_for_llm: str
+    program_id: int
+    similarity: float
+    llm_score: Optional[float] = None
+    score: float
+    confidence: str
+    reasoning: Optional[str] = None
+
+
+class CornerRecommendationResult(BaseModel):
+    """コーナー推薦結果"""
+    recommendations: List[CornerRecommendationResponse]
+    metadata: dict
+
+
+class UpdateEmbeddingRequest(BaseModel):
+    """埋め込み更新リクエスト"""
+    corner_id: Optional[int] = Field(None, description="コーナーID（指定しない場合は全更新）")
+    user_id: Optional[int] = Field(None, description="ユーザーID（指定した場合はそのユーザーのコーナーのみ）")
+
+
+class UpdateEmbeddingResponse(BaseModel):
+    """埋め込み更新レスポンス"""
+    success: bool
+    message: str
+    details: Optional[dict] = None
