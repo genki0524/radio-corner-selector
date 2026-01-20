@@ -13,7 +13,7 @@ from utils.styles import get_custom_css
 st.set_page_config(
     page_title="ラジオ投稿ダッシュボード",
     page_icon="🎵",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded",
 )
 

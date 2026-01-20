@@ -6,12 +6,9 @@ services:
     container_name: radio-selector-backend
     ports:
       - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
-      - DATABASE_URL=sqlite:///./radio_corner_selector.db
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GEMINI_MODEL=gemini-pro
-      - APP_NAME=Radio Corner Selector API
-      - DEBUG=True
       - CORS_ORIGINS=http://localhost:8501,http://frontend:8501
     volumes:
       - ./backend:/app

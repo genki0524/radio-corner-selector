@@ -13,7 +13,7 @@ from utils.styles import get_custom_css
 st.set_page_config(
     page_title="メール作成",
     page_icon="📧",
-    layout="wide",
+    layout="centered",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)

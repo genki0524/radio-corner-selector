@@ -4,16 +4,11 @@ Google Gemini APIを使用してメモの内容を解析し、最適なコーナ
 """
 from typing import List
 import json
-import google.generativeai as genai
+from google import genai
 from sqlalchemy.orm import Session
 
 from config import settings
 from cruds import analyze as analyze_crud
-
-# Gemini APIの設定
-if settings.gemini_api_key:
-    genai.configure(api_key=settings.gemini_api_key)
-
 
 def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> List[dict]:
     """
@@ -26,8 +21,10 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
     Returns:
         推奨コーナーのリスト
     """
+
     if not settings.gemini_api_key:
         # APIキーが設定されていない場合はモックデータを返す
+        print("APIキーが設定されていません。")
         return [
             {
                 "corner_id": corners_info[0]["id"],
@@ -37,7 +34,7 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
         ] if corners_info else []
     
     try:
-        model = genai.GenerativeModel(settings.gemini_model)
+        client = genai.Client()
         
         # プロンプト作成
         corners_text = "\n\n".join([
@@ -73,8 +70,13 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
 - JSONのみを返し、他のテキストは含めない
 """
         
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=settings.gemini_model,
+            contents=prompt
+        )
         
+        print(response)
+
         # レスポンスをパース
         response_text = response.text.strip()
         # ```json ... ``` を削除

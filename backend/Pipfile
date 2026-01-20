@@ -12,6 +12,7 @@ pydantic-settings = "*"
 python-dotenv = "*"
 google-generativeai = "*"
 email-validator = "*"
+google-genai = "*"
 
 [dev-packages]
 pytest = "*"
