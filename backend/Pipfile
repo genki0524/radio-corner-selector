@@ -13,6 +13,8 @@ python-dotenv = "*"
 google-generativeai = "*"
 email-validator = "*"
 google-genai = "*"
+psycopg2-binary = "*"
+pgvector = "*"
 
 [dev-packages]
 pytest = "*"

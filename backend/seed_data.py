@@ -17,25 +17,35 @@ from models import (
 )
 
 
-def seed_data():
-    """初期データを投入"""
+def seed_data(clear_existing: bool = False):
+    """初期データを投入
+    
+    Args:
+        clear_existing: 既存データをクリアするかどうか（デフォルト: False）
+    """
     db: Session = SessionLocal()
     
     try:
         # データベース初期化
         init_db()
         
-        # 既存データをクリア
-        db.query(Mail).delete()
-        db.query(Memo).delete()
-        db.query(Corner).delete()
-        db.query(Program).delete()
-        db.query(Personality).delete()
-        db.query(Profile).delete()
-        db.query(User).delete()
-        db.commit()
-        
-        print("🗑️  既存データをクリアしました")
+        # 既存データのクリア（オプション）
+        if clear_existing:
+            db.query(Mail).delete()
+            db.query(Memo).delete()
+            db.query(Corner).delete()
+            db.query(Program).delete()
+            db.query(Personality).delete()
+            db.query(Profile).delete()
+            db.query(User).delete()
+            db.commit()
+            print("🗑️  既存データをクリアしました")
+        else:
+            # データが既に存在するか確認
+            user_count = db.query(User).count()
+            if user_count > 0:
+                print("ℹ️  既にデータが存在します。処理をスキップします。")
+                return
         
         # ユーザー作成
         user = User(

@@ -9,8 +9,10 @@ from config import settings
 # SQLAlchemyエンジン作成
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False},  # SQLite用
     echo=settings.debug,
+    pool_pre_ping=True,  # 接続の健全性チェック
+    pool_size=5,  # コネクションプールサイズ
+    max_overflow=10,  # 最大追加接続数
 )
 
 # セッションファクトリ

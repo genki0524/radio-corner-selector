@@ -5,8 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from database import init_db
+from database import init_db, SessionLocal
 from routers import memos, profiles, personalities, programs, corners, mails, analyze
+from models import User
 
 # FastAPIアプリケーション
 app = FastAPI(
@@ -38,6 +39,17 @@ app.include_router(analyze.router, prefix="/api")
 async def startup_event():
     """アプリケーション起動時の処理"""
     init_db()
+    
+    # 開発環境: データが存在しない場合はシードデータを投入
+    db = SessionLocal()
+    try:
+        user_count = db.query(User).count()
+        if user_count == 0:
+            print("📊 データベースが空です。シードデータを投入します...")
+            from seed_data import seed_data
+            seed_data()
+    finally:
+        db.close()
 
 
 @app.get("/")
