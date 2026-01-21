@@ -98,13 +98,12 @@ st.divider()
 
 # 手動でコーナーを選択
 st.subheader("コーナーを手動で選択")
+
 try:
     programs = api_client.get_programs()
     program_titles = ["番組を選択してください"] + [p['title'] for p in programs]
     selected_program_title = st.selectbox("番組", program_titles, key="select_program")
     
-    selected_corner = None
-    selected_program = None
     if selected_program_title != "番組を選択してください":
         selected_program = next((p for p in programs if p['title'] == selected_program_title), None)
         if selected_program:
@@ -117,9 +116,22 @@ try:
                 if selected_corner:
                     st.session_state["selected_corner_id"] = selected_corner['id']
                     st.session_state["selected_program_id"] = selected_program['id']
-                    st.info(f"投稿先: {selected_program.get('email_address', 'N/A')}")
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
+
+st.divider()
+
+# 現在の選択状態を表示
+if st.session_state.get("selected_program_id") and st.session_state.get("selected_corner_id"):
+    try:
+        programs = api_client.get_programs()
+        current_program = next((p for p in programs if p['id'] == st.session_state["selected_program_id"]), None)
+        if current_program:
+            current_corner = next((c for c in current_program.get('corners', []) if c['id'] == st.session_state["selected_corner_id"]), None)
+            if current_corner:
+                st.success(f"📌 投稿先: {current_program['title']} - {current_corner['title']} ({current_program.get('email_address', 'N/A')})")
+    except Exception as e:
+        pass
 
 st.divider()
 
@@ -211,13 +223,19 @@ with col1:
 
 with col2:
     if st.button("メーラーで開く", type="primary", use_container_width=True, key="open_mailer"):
-        if selected_program and mail_subject and mail_body:
+        if st.session_state.get("selected_program_id") and st.session_state.get("selected_corner_id") and mail_subject and mail_body:
             try:
                 import urllib.parse
-                email_address = selected_program.get('email_address', '')
-                mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(mail_subject)}&body={urllib.parse.quote(mail_body)}"
-                st.markdown(f"[メーラーを起動]({mailto_link})")
-                st.success("メーラーを起動します")
+                programs = api_client.get_programs()
+                current_program = next((p for p in programs if p['id'] == st.session_state["selected_program_id"]), None)
+                
+                if current_program:
+                    email_address = current_program.get('email_address', '')
+                    mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(mail_subject)}&body={urllib.parse.quote(mail_body)}"
+                    st.markdown(f"[メーラーを起動]({mailto_link})")
+                    st.success("メーラーを起動します")
+                else:
+                    st.error("番組情報の取得に失敗しました")
             except Exception as e:
                 st.error(f"エラー: {e}")
         else:
