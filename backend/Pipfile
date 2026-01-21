@@ -20,6 +20,7 @@ langchain-ollama = "*"
 langchain-huggingface = "*"
 langchain-postgres = "*"
 alembic = "*"
+sentence-transformers = "*"
 
 [dev-packages]
 pytest = "*"
