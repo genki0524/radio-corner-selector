@@ -37,10 +37,7 @@ app.include_router(recommendations.router)
 
 
 @app.on_event("startup")
-async def startup_event():
-    """アプリケーション起動時の処理"""
-    init_db()
-    
+async def startup_event():    
     # 開発環境: データが存在しない場合はシードデータを投入
     db = SessionLocal()
     try:
