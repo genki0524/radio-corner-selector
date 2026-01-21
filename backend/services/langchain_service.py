@@ -16,8 +16,9 @@ class EmbeddingService:
         """HuggingFace埋め込みモデルを初期化"""
         self.embeddings = HuggingFaceEmbeddings(
             model_name=settings.embedding_model_name,
-            model_kwargs={'device': 'cpu'},
-            encode_kwargs={'normalize_embeddings': True}
+            model_kwargs={
+                'device': 'cpu',
+            }
         )
     
     def embed_text(self, text: str) -> List[float]:
