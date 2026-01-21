@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     )
     
     # データベース
-    database_url: str = "postgresql://radio_user:radio_password@localhost:5432/radio_corner_selector"
+    database_url: str = "postgresql://radio_user:radio_password@db:5432/radio_corner_selector"
     
     # Google Gemini API
     gemini_api_key: str = ""

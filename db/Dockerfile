@@ -19,9 +19,9 @@ RUN git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git /tmp/pgve
 COPY init.sql /docker-entrypoint-initdb.d/
 
 ENV TZ Asia/Tokyo
-ENV LANG ja_JP.UTF-8
-ENV LANGUAGE ja_JP:ja
-ENV LC_ALL ja_JP.UTF-8
+# ENV LANG ja_JP.UTF-8
+# ENV LANGUAGE ja_JP:ja
+# ENV LC_ALL ja_JP.UTF-8
 ENV POSTGRES_DB=radio_corner_selector
 ENV POSTGRES_USER=radio_user
 ENV POSTGRES_PASSWORD=radio_password
