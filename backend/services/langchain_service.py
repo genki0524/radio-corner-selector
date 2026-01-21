@@ -4,8 +4,7 @@ LangChainを使用した埋め込みとLLM推論サービス
 from typing import List, Dict, Optional
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import OllamaLLM
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
 
 from config import settings
 
@@ -107,15 +106,15 @@ class LLMReasoningService:
             template=template
         )
         
-        # LLM推論を実行
-        chain = LLMChain(llm=self.llm, prompt=prompt)
+        # LLM推論を実行（LCEL使用）
+        chain = prompt | self.llm
         result = chain.invoke({
             "memo_content": memo_content,
             "corners_info": corners_info
         })
         
         # 結果をパース
-        return self._parse_llm_response(result["text"], candidates)
+        return self._parse_llm_response(result, candidates)
     
     def _format_corners_info(self, corners: List[Dict]) -> str:
         """コーナー情報を整形"""
@@ -211,14 +210,15 @@ class LLMReasoningService:
             template=template
         )
         
-        chain = LLMChain(llm=self.llm, prompt=prompt)
+        # LLM推論を実行（LCEL使用）
+        chain = prompt | self.llm
         result = chain.invoke({
             "memo_content": memo_content,
             "corners_list": corners_list
         })
         
         # 結果をパースして各コーナーのスコアを抽出
-        return self._parse_multiple_scores(result["text"], all_corners)
+        return self._parse_multiple_scores(result, all_corners)
     
     def _parse_multiple_scores(
         self,

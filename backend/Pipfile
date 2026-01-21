@@ -19,6 +19,7 @@ langchain = "*"
 langchain-ollama = "*"
 langchain-huggingface = "*"
 langchain-postgres = "*"
+alembic = "*"
 
 [dev-packages]
 pytest = "*"
