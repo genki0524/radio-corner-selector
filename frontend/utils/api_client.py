@@ -110,6 +110,17 @@ class APIClient:
         response = requests.post(f"{self.api_base}/personalities", json=data)
         return self._handle_response(response)
     
+    def update_personality(self, personality_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
+        """パーソナリティを更新"""
+        response = requests.put(f"{self.api_base}/personalities/{personality_id}", json=data)
+        return self._handle_response(response)
+    
+    def delete_personality(self, personality_id: int) -> None:
+        """パーソナリティを削除"""
+        response = requests.delete(f"{self.api_base}/personalities/{personality_id}")
+        if response.status_code != 204:
+            raise Exception(f"Failed to delete personality: {response.status_code}")
+    
     # ========== 番組 ==========
     def get_programs(
         self,
