@@ -16,8 +16,10 @@ RUN pipenv install --system --deploy
 # アプリケーションコードのコピー
 COPY . .
 
+RUN chmod 755 entrypoint.sh
+
 # ポート8000を公開
 EXPOSE 8000
 
 # Uvicornでアプリケーションを起動
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["./entrypoint.sh"]
