@@ -58,25 +58,6 @@ with st.expander("新規番組を登録", expanded=False):
     personality_names = [p['name'] for p in personalities]
     selected_personalities = st.multiselect("パーソナリティ", personality_names, key="selected_personalities")
     
-    st.markdown("#### コーナー設定")
-    num_corners = st.number_input("コーナー数", min_value=0, max_value=10, value=1, key="num_corners")
-    
-    corners_data = []
-    for i in range(num_corners):
-        with st.container():
-            st.markdown(f"**コーナー {i+1}**")
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                corner_title = st.text_input(f"コーナー名 {i+1}", key=f"corner_title_{i}", placeholder="例: リスナーの質問箱")
-            with col2:
-                corner_desc = st.text_area(
-                    f"AI解析用説明 {i+1}",
-                    key=f"corner_desc_{i}",
-                    height=80,
-                    placeholder="このコーナーに合うメモの特徴を記述...",
-                )
-            corners_data.append({"title": corner_title, "description_for_llm": corner_desc})
-    
     col1, col2, col3 = st.columns([1, 1, 4])
     with col1:
         if st.button("登録", type="primary", use_container_width=True, key="create_program_btn"):
@@ -93,7 +74,7 @@ with st.expander("新規番組を登録", expanded=False):
                         "email_address": new_program_email,
                         "broadcast_schedule": new_program_schedule,
                         "personality_ids": personality_ids,
-                        "corners": [c for c in corners_data if c["title"]],
+                        # "corners": [c for c in corners_data if c["title"]],
                     }
                     
                     api_client.create_program(program_data)
@@ -178,8 +159,56 @@ try:
                             unsafe_allow_html=True,
                         )
                 
-                if st.button(f"コーナーを追加", key=f"add_corner_{program['id']}", use_container_width=True):
-                    st.info("コーナー追加機能は実装予定です")
+                # コーナー追加フォームの表示状態を管理
+                add_corner_key = f"adding_corner_{program['id']}"
+                if add_corner_key not in st.session_state:
+                    st.session_state[add_corner_key] = False
+                
+                if st.button(f"コーナーを追加", key=f"add_corner_btn_{program['id']}", use_container_width=True):
+                    st.session_state[add_corner_key] = True
+                    st.rerun()
+                
+                # コーナー追加フォームを表示
+                if st.session_state[add_corner_key]:
+                    st.markdown("---")
+                    st.markdown("**新しいコーナーを追加**")
+                    
+                    new_corner_title = st.text_input(
+                        "コーナー名",
+                        key=f"new_corner_title_{program['id']}",
+                        placeholder="例: リスナーの質問箱"
+                    )
+                    
+                    new_corner_desc = st.text_area(
+                        "AI解析用説明",
+                        key=f"new_corner_desc_{program['id']}",
+                        height=100,
+                        placeholder="このコーナーに合うメモの特徴を記述..."
+                    )
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("追加", key=f"submit_corner_{program['id']}", type="primary", use_container_width=True):
+                            if new_corner_title and new_corner_desc:
+                                try:
+                                    corner_data = {
+                                        "program_id": program["id"],
+                                        "title": new_corner_title,
+                                        "description_for_llm": new_corner_desc
+                                    }
+                                    api_client.create_corner(corner_data)
+                                    st.success(f"コーナー「{new_corner_title}」を追加しました！")
+                                    st.session_state[add_corner_key] = False
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"コーナー追加エラー: {e}")
+                            else:
+                                st.warning("コーナー名と説明は必須です")
+                    
+                    with col2:
+                        if st.button("キャンセル", key=f"cancel_corner_{program['id']}", use_container_width=True):
+                            st.session_state[add_corner_key] = False
+                            st.rerun()
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
 

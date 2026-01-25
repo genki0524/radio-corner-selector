@@ -87,7 +87,7 @@ class ProgramRepositoryImpl(ProgramRepositoryInterface):
         self,
         program_data: dict,
         personality_ids: List[int],
-        corners_data: Optional[List[dict]] = None
+        # corners_data: Optional[List[dict]] = None
     ) -> Program:
         """辞書から番組を作成（後方互換性のため）"""
         from models import Corner
@@ -104,13 +104,6 @@ class ProgramRepositoryImpl(ProgramRepositoryInterface):
                 .all()
             )
             db_program.personalities = personalities
-        
-        # コーナーの作成
-        if corners_data:
-            for corner_data in corners_data:
-                corner_data['program_id'] = db_program.id
-                db_corner = Corner(**corner_data)
-                self._db.add(db_corner)
         
         self._db.commit()
         self._db.refresh(db_program)

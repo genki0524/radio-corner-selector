@@ -103,7 +103,7 @@ class ProgramBase(BaseModel):
 class ProgramCreate(ProgramBase):
     user_id: int
     personality_ids: List[int] = Field(default_factory=list)
-    corners: List[CornerBase] = Field(default_factory=list)
+    # corners: List[CornerBase] = Field(default_factory=list)
 
 
 class ProgramUpdate(ProgramBase):
