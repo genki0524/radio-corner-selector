@@ -1,18 +1,15 @@
-"""
-メール作成・投稿設定ページ
-"""
 import streamlit as st
 import sys
 from pathlib import Path
-
-sys.path.append(str(Path(__file__).parent.parent))
+import urllib.parse
 
 from utils.api_client import api_client
 from utils.styles import get_custom_css
 
+sys.path.append(str(Path(__file__).parent.parent))
+
 st.set_page_config(
     page_title="メール作成",
-    page_icon="📧",
     layout="centered",
 )
 
@@ -129,7 +126,7 @@ if st.session_state.get("selected_program_id") and st.session_state.get("selecte
         if current_program:
             current_corner = next((c for c in current_program.get('corners', []) if c['id'] == st.session_state["selected_corner_id"]), None)
             if current_corner:
-                st.success(f"📌 投稿先: {current_program['title']} - {current_corner['title']} ({current_program.get('email_address', 'N/A')})")
+                st.success(f"投稿先: {current_program['title']} - {current_corner['title']} ({current_program.get('email_address', 'N/A')})")
     except Exception as e:
         pass
 
@@ -156,8 +153,6 @@ with col1:
         selected_profile = None
 
 with col2:
-    st.write("")
-    st.write("")
     if st.button("プロフィール管理", use_container_width=True):
         st.switch_page("pages/4_profiles.py")
 
@@ -165,38 +160,16 @@ with col2:
 mail_subject = st.text_input(
     "件名",
     value=st.session_state.get("mail_subject", ""),
-    placeholder="例: リスナーからの質問です",
 )
 st.session_state["mail_subject"] = mail_subject
 
-# メール本文
-mail_body_default = ""
-if selected_memo and selected_profile:
-    mail_body_default = f"""いつも番組を楽しく聴いています。
-ラジオネーム: {selected_profile['radio_name']}
-
-{selected_memo['content']}
-
-よろしくお願いします。
-"""
-
 mail_body = st.text_area(
     "本文",
-    value=st.session_state.get("mail_body", mail_body_default),
+    value=st.session_state.get("mail_body"),
     height=300,
     placeholder="メール本文を入力してください...",
 )
 st.session_state["mail_body"] = mail_body
-
-st.divider()
-
-# ステータス選択
-st.subheader("ステータス")
-mail_status = st.radio(
-    "メールのステータス",
-    ["下書き", "送信済み", "採用", "不採用"],
-    horizontal=True,
-)
 
 st.divider()
 
@@ -212,7 +185,7 @@ with col1:
                     "memo_id": selected_memo['id'] if selected_memo else None,
                     "subject": mail_subject,
                     "body": mail_body,
-                    "status": mail_status,
+                    "status": "下書き",
                 }
                 api_client.create_mail(mail_data)
                 st.success("下書きを保存しました")
@@ -225,10 +198,18 @@ with col2:
     if st.button("メーラーで開く", type="primary", use_container_width=True, key="open_mailer"):
         if st.session_state.get("selected_program_id") and st.session_state.get("selected_corner_id") and mail_subject and mail_body:
             try:
-                import urllib.parse
                 programs = api_client.get_programs()
                 current_program = next((p for p in programs if p['id'] == st.session_state["selected_program_id"]), None)
                 
+                mail_data = {
+                    "corner_id": st.session_state["selected_corner_id"],
+                    "memo_id": selected_memo['id'] if selected_memo else None,
+                    "subject": mail_subject,
+                    "body": mail_body,
+                    "status": "送信済み",
+                }
+                api_client.create_mail(mail_data)
+
                 if current_program:
                     email_address = current_program.get('email_address', '')
                     mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(mail_subject)}&body={urllib.parse.quote(mail_body)}"
@@ -250,33 +231,3 @@ with col3:
 with col4:
     if st.button("キャンセル", use_container_width=True):
         st.switch_page("app.py")
-
-# サイドバー
-with st.sidebar:
-    st.header("メモ内容")
-    if selected_memo:
-        from datetime import datetime
-        created_at = datetime.fromisoformat(selected_memo['created_at'].replace('Z', '+00:00'))
-        st.markdown(
-            f"""
-            <div class="card">
-                <p style="color: #1f2937; line-height: 1.6;">
-                    {selected_memo['content']}
-                </p>
-                <p style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.5rem;">
-                    {created_at.strftime('%Y/%m/%d %H:%M')}
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        st.info("メモを選択してください")
-    
-    st.divider()
-    
-    st.header("操作")
-    if st.button("ダッシュボードへ", use_container_width=True):
-        st.switch_page("app.py")
-    if st.button("メモ一覧", use_container_width=True):
-        st.switch_page("pages/1_memos.py")

@@ -1,6 +1,3 @@
-"""
-番組管理ページ
-"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -12,7 +9,6 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="番組管理",
-    page_icon="📺",
     layout="centered",
 )
 
@@ -211,24 +207,3 @@ try:
                             st.rerun()
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
-
-# サイドバー
-with st.sidebar:
-    st.header("統計情報")
-    try:
-        total_programs = len(api_client.get_programs())
-        total_personalities = len(api_client.get_personalities())
-        
-        st.metric("総番組数", f"{total_programs}件")
-        st.metric("パーソナリティ数", f"{total_personalities}名")
-    except:
-        st.metric("総番組数", "取得失敗")
-        st.metric("パーソナリティ数", "取得失敗")
-    
-    st.divider()
-    
-    st.header("操作")
-    if st.button("ダッシュボードへ", use_container_width=True):
-        st.switch_page("app.py")
-    if st.button("メモ一覧", use_container_width=True):
-        st.switch_page("pages/1_memos.py")

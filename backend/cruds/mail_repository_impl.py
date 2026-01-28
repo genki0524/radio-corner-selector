@@ -6,6 +6,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from models import Mail
+from models import Corner, Program
 from domain.repositories.mail_repository import MailRepositoryInterface
 from domain.entities.mail_entity import MailEntity
 from domain.value_objects.mail_status import MailStatus
@@ -32,8 +33,6 @@ class MailRepositoryImpl(MailRepositoryInterface):
         limit: int = 100
     ) -> List[MailEntity]:
         """ユーザーIDでメール一覧を取得"""
-        # ユーザーのメールを取得するにはcorner経由でprogramを辿る必要がある
-        from models import Corner, Program
         
         query = (
             self._db.query(Mail)

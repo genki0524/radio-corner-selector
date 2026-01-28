@@ -1,6 +1,3 @@
-"""
-プロフィール設定ページ
-"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -12,7 +9,6 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="プロフィール設定",
-    page_icon="👥",
     layout="centered",
 )
 
@@ -144,30 +140,3 @@ try:
                 st.code(signature, language=None)
 except Exception as e:
     st.error(f"プロフィールの取得に失敗: {e}")
-
-# サイドバー
-with st.sidebar:
-    st.header("統計情報")
-    try:
-        total_profiles = len(api_client.get_profiles())
-        st.metric("総プロフィール数", f"{total_profiles}件")
-    except:
-        st.metric("総プロフィール数", "取得失敗")
-    
-    st.divider()
-    
-    st.header("ヒント")
-    st.markdown("""
-    **プロフィールの使い分け:**
-    - 番組ごとに異なるプロフィールを使用できます
-    - 匿名で投稿したい場合は本名を空欄に
-    - 複数のラジオネームを使い分けることも可能
-    """)
-    
-    st.divider()
-    
-    st.header("操作")
-    if st.button("ダッシュボードへ", use_container_width=True):
-        st.switch_page("app.py")
-    if st.button("メール作成", use_container_width=True, type="primary"):
-        st.switch_page("pages/3_mail.py")

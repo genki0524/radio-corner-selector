@@ -1,6 +1,3 @@
-"""
-メモ一覧ページ
-"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -13,7 +10,6 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="メモ一覧",
-    page_icon="📋",
     layout="centered",
 )
 
@@ -111,20 +107,3 @@ try:
                             st.error(f"削除エラー: {e}")
 except Exception as e:
     st.error(f"メモの取得に失敗: {e}")
-
-# サイドバー
-with st.sidebar:
-    st.header("統計情報")
-    try:
-        total_memos = len(api_client.get_memos())
-        st.metric("総メモ数", f"{total_memos}件")
-    except:
-        st.metric("総メモ数", "取得失敗")
-    
-    st.divider()
-    
-    st.header("操作")
-    if st.button("ダッシュボードへ", use_container_width=True):
-        st.switch_page("app.py")
-    if st.button("メール作成", use_container_width=True, type="primary"):
-        st.switch_page("pages/3_mail.py")

@@ -129,7 +129,7 @@ class Mail(Base):
     memo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("memos.id"), nullable=True)
     subject: Mapped[str] = mapped_column(String(255))  # 件名
     body: Mapped[str] = mapped_column(Text)  # 本文
-    status: Mapped[str] = mapped_column(String(20), default="下書き")  # ステータス
+    status: Mapped[str] = mapped_column(String(20), default="送信済み") 
     sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
