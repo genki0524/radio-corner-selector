@@ -150,7 +150,8 @@ class MailBase(BaseModel):
 
 
 class MailCreate(MailBase):
-    corner_id: Optional[int] = None
+    user_id: int
+    corner_id: int
     memo_id: Optional[int] = None
 
 
@@ -163,7 +164,8 @@ class MailUpdate(BaseModel):
 
 class MailResponse(MailBase):
     id: int
-    corner_id: Optional[int]
+    user_id: int
+    corner_id: int
     memo_id: Optional[int]
     sent_at: Optional[datetime]
     created_at: datetime

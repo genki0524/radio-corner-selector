@@ -34,6 +34,7 @@ class User(Base):
     programs: Mapped[List["Program"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     personalities: Mapped[List["Personality"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     memos: Mapped[List["Memo"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    mails: Mapped[List["Mail"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class Profile(Base):
@@ -125,7 +126,8 @@ class Mail(Base):
     __tablename__ = "mails"
     
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    corner_id: Mapped[int] = mapped_column(ForeignKey("corners.id"),nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    corner_id: Mapped[int] = mapped_column(ForeignKey("corners.id"))
     memo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("memos.id"), nullable=True)
     subject: Mapped[str] = mapped_column(String(255))  # 件名
     body: Mapped[str] = mapped_column(Text)  # 本文
@@ -135,5 +137,6 @@ class Mail(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     # リレーション
+    user: Mapped["User"] = relationship(back_populates="mails")
     corner: Mapped["Corner"] = relationship(back_populates="mails")
     memo: Mapped[Optional["Memo"]] = relationship(back_populates="mails")

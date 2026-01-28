@@ -79,6 +79,8 @@ try:
                         if corner:
                             corner_info = f"{program['title']} - {corner['title']}"
                             break
+                else:
+                    corner_info = program['title']
                 
                 col1, col2 = st.columns([5, 1])
                 
@@ -197,14 +199,65 @@ if st.session_state.get("show_mail_modal", False) and st.session_state.get("sele
                 
                 st.divider()
                 
-                st.markdown("### 本文")
-                st.text_area(
-                    label="本文",
-                    value=selected_mail['body'],
-                    height=300,
-                    disabled=True,
-                    label_visibility="collapsed"
-                )
+                # 編集モードの管理
+                edit_mode_key = f"edit_mode_{selected_mail['id']}"
+                if edit_mode_key not in st.session_state:
+                    st.session_state[edit_mode_key] = False
+                
+                # 件名と本文の編集
+                col_header1, col_header2 = st.columns([3, 1])
+                with col_header1:
+                    st.markdown("### 本文")
+                with col_header2:
+                    st.write("")
+                    if not st.session_state[edit_mode_key]:
+                        if st.button("編集", key=f"enable_edit_{selected_mail['id']}", use_container_width=True):
+                            st.session_state[edit_mode_key] = True
+                            st.rerun()
+                    else:
+                        if st.button("キャンセル", key=f"cancel_edit_{selected_mail['id']}", use_container_width=True):
+                            st.session_state[edit_mode_key] = False
+                            st.rerun()
+                
+                # 編集モードに応じて入力フィールドを表示
+                if st.session_state[edit_mode_key]:
+                    edited_subject = st.text_input(
+                        "件名",
+                        value=selected_mail['subject'],
+                        key=f"edit_subject_{selected_mail['id']}"
+                    )
+                    edited_body = st.text_area(
+                        label="本文",
+                        value=selected_mail['body'],
+                        height=300,
+                        disabled=False,
+                        label_visibility="collapsed",
+                        key=f"edit_body_{selected_mail['id']}"
+                    )
+                    
+                    # 保存ボタン
+                    if st.button("保存", type="primary", use_container_width=True, key=f"save_edit_{selected_mail['id']}"):
+                        try:
+                            update_data = {
+                                "subject": edited_subject,
+                                "body": edited_body
+                            }
+                            api_client.update_mail(selected_mail['id'], update_data)
+                            st.success("メールを更新しました")
+                            st.session_state[edit_mode_key] = False
+                            st.session_state["show_mail_modal"] = False
+                            st.session_state["selected_mail_id"] = None
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"メール更新に失敗: {e}")
+                else:
+                    st.text_area(
+                        label="本文",
+                        value=selected_mail['body'],
+                        height=300,
+                        disabled=True,
+                        label_visibility="collapsed"
+                    )
                 
                 st.divider()
                 
@@ -235,16 +288,13 @@ if st.session_state.get("show_mail_modal", False) and st.session_state.get("sele
                 st.divider()
                 
                 # 閉じるボタン
-                col1, col2, col3 = st.columns([1, 1, 2])
-                with col1:
-                    if st.button("閉じる", type="primary", use_container_width=True):
-                        st.session_state["show_mail_modal"] = False
-                        st.session_state["selected_mail_id"] = None
-                        st.rerun()
-                with col2:
-                    if st.button("編集", use_container_width=True):
-                        st.session_state["show_mail_modal"] = False
-                        st.switch_page("pages/3_create_mail.py")
+                if st.button("閉じる", type="primary", use_container_width=True):
+                    st.session_state["show_mail_modal"] = False
+                    st.session_state["selected_mail_id"] = None
+                    # 編集モードをリセット
+                    if edit_mode_key in st.session_state:
+                        del st.session_state[edit_mode_key]
+                    st.rerun()
             
             show_mail_detail()
     

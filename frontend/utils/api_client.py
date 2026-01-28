@@ -193,6 +193,7 @@ class APIClient:
     
     def create_mail(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """メールを作成"""
+        data["user_id"] = self.user_id
         response = requests.post(f"{self.api_base}/mails", json=data)
         return self._handle_response(response)
     
