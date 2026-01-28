@@ -125,7 +125,7 @@ class Mail(Base):
     __tablename__ = "mails"
     
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    corner_id: Mapped[int] = mapped_column(ForeignKey("corners.id"))
+    corner_id: Mapped[int] = mapped_column(ForeignKey("corners.id"),nullable=True)
     memo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("memos.id"), nullable=True)
     subject: Mapped[str] = mapped_column(String(255))  # 件名
     body: Mapped[str] = mapped_column(Text)  # 本文
