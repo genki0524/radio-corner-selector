@@ -104,6 +104,7 @@ try:
     if selected_program_title != "番組を選択してください":
         selected_program = next((p for p in programs if p['title'] == selected_program_title), None)
         if selected_program:
+            st.session_state["selected_program_id"] = selected_program['id']
             corners = selected_program.get('corners', [])
             corner_titles = ["コーナーを選択してください"] + [c['title'] for c in corners]
             selected_corner_title = st.selectbox("コーナー", corner_titles, key="select_corner")
@@ -112,14 +113,13 @@ try:
                 selected_corner = next((c for c in corners if c['title'] == selected_corner_title), None)
                 if selected_corner:
                     st.session_state["selected_corner_id"] = selected_corner['id']
-                    st.session_state["selected_program_id"] = selected_program['id']
 except Exception as e:
     st.error(f"番組の取得に失敗: {e}")
 
 st.divider()
 
 # 現在の選択状態を表示
-if st.session_state.get("selected_program_id") and st.session_state.get("selected_corner_id"):
+if st.session_state.get("selected_program_id"):
     try:
         programs = api_client.get_programs()
         current_program = next((p for p in programs if p['id'] == st.session_state["selected_program_id"]), None)
@@ -127,6 +127,8 @@ if st.session_state.get("selected_program_id") and st.session_state.get("selecte
             current_corner = next((c for c in current_program.get('corners', []) if c['id'] == st.session_state["selected_corner_id"]), None)
             if current_corner:
                 st.success(f"投稿先: {current_program['title']} - {current_corner['title']} ({current_program.get('email_address', 'N/A')})")
+            else:
+                st.success(f"投稿先: {current_program['title']})")
     except Exception as e:
         pass
 
@@ -178,15 +180,17 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     if st.button("下書き保存", type="secondary", use_container_width=True, key="save_draft"):
-        if st.session_state.get("selected_corner_id") and mail_subject and mail_body:
+        # if st.session_state.get("selected_corner_id") and mail_subject and mail_body:
+        if mail_subject and mail_body:
             try:
                 mail_data = {
-                    "corner_id": st.session_state["selected_corner_id"],
+                    "corner_id": st.session_state.get("selected_corner_id"),
                     "memo_id": selected_memo['id'] if selected_memo else None,
                     "subject": mail_subject,
                     "body": mail_body,
                     "status": "下書き",
                 }
+
                 api_client.create_mail(mail_data)
                 st.success("下書きを保存しました")
             except Exception as e:
@@ -202,7 +206,7 @@ with col2:
                 current_program = next((p for p in programs if p['id'] == st.session_state["selected_program_id"]), None)
                 
                 mail_data = {
-                    "corner_id": st.session_state["selected_corner_id"],
+                    "corner_id": st.session_state.get("selected_corner_id"),
                     "memo_id": selected_memo['id'] if selected_memo else None,
                     "subject": mail_subject,
                     "body": mail_body,
