@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from database import SessionLocal, init_db
 from models import (
     User,
-    Profile,
     Personality,
     Program,
     Corner,
@@ -36,7 +35,6 @@ def seed_data(clear_existing: bool = False):
             db.query(Corner).delete()
             db.query(Program).delete()
             db.query(Personality).delete()
-            db.query(Profile).delete()
             db.query(User).delete()
             db.commit()
             print("🗑️  既存データをクリアしました")
@@ -57,30 +55,6 @@ def seed_data(clear_existing: bool = False):
         db.refresh(user)
         print(f"✅ ユーザー作成: {user.email}")
         
-        # プロフィール作成
-        profiles = [
-            Profile(
-                user_id=user.id,
-                name="メインプロフィール",
-                radio_name="ラジオネーム太郎",
-                real_name="山田太郎",
-                address="東京都渋谷区",
-                phone="090-1234-5678",
-            ),
-            Profile(
-                user_id=user.id,
-                name="サブプロフィール",
-                radio_name="匿名希望",
-                real_name="",
-                address="",
-                phone="",
-            ),
-        ]
-        for profile in profiles:
-            db.add(profile)
-        db.commit()
-        print(f"✅ プロフィール作成: {len(profiles)}件")
-        
         # パーソナリティ作成
         personalities = [
             Personality(user_id=user.id, name="佐藤健太", nickname="けんちゃん"),
@@ -96,7 +70,6 @@ def seed_data(clear_existing: bool = False):
         # 番組作成
         program1 = Program(
             user_id=user.id,
-            default_profile_id=profiles[0].id,
             title="モーニング・ロースト",
             email_address="morning@radio.com",
             broadcast_schedule="月〜金 6:00-10:00",
@@ -108,7 +81,6 @@ def seed_data(clear_existing: bool = False):
         
         program2 = Program(
             user_id=user.id,
-            default_profile_id=profiles[1].id,
             title="レイトナイト・ジャズ",
             email_address="jazz@radio.com",
             broadcast_schedule="金 22:00-24:00",
@@ -120,7 +92,6 @@ def seed_data(clear_existing: bool = False):
         
         program3 = Program(
             user_id=user.id,
-            default_profile_id=profiles[0].id,
             title="週末トーク",
             email_address="weekend@radio.com",
             broadcast_schedule="土日 15:00-17:00",
@@ -248,7 +219,6 @@ def seed_data(clear_existing: bool = False):
         print("\n✨ 初期データの投入が完了しました！")
         print(f"\n📊 投入データサマリー:")
         print(f"  - ユーザー: 1件")
-        print(f"  - プロフィール: {len(profiles)}件")
         print(f"  - パーソナリティ: {len(personalities)}件")
         print(f"  - 番組: 3件")
         print(f"  - コーナー: {len(corners)}件")

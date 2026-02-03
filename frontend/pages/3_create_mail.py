@@ -137,27 +137,6 @@ st.divider()
 # メール作成
 st.subheader("メール内容")
 
-col1, col2 = st.columns([3, 1])
-
-with col1:
-    # プロフィール選択
-    try:
-        profiles = api_client.get_profiles()
-        profile_options = [p['name'] for p in profiles]
-        if profile_options:
-            selected_profile_name = st.selectbox("使用するプロフィール", profile_options, key="select_profile")
-            selected_profile = next((p for p in profiles if p['name'] == selected_profile_name), None)
-        else:
-            st.warning("プロフィールが登録されていません")
-            selected_profile = None
-    except Exception as e:
-        st.error(f"プロフィールの取得に失敗: {e}")
-        selected_profile = None
-
-with col2:
-    if st.button("プロフィール管理", use_container_width=True):
-        st.switch_page("pages/4_profiles.py")
-
 # メール件名
 mail_subject = st.text_input(
     "件名",
