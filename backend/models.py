@@ -69,7 +69,6 @@ class Program(Base):
         back_populates="programs"
     )
 
-
 class Corner(Base):
     """コーナーモデル"""
     __tablename__ = "corners"
