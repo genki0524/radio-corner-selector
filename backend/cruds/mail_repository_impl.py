@@ -6,6 +6,8 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from models import Mail
+from models import Corner, Program
+from models import Corner, Program
 from domain.repositories.mail_repository import MailRepositoryInterface
 from domain.entities.mail_entity import MailEntity
 from domain.value_objects.mail_status import MailStatus
@@ -32,15 +34,8 @@ class MailRepositoryImpl(MailRepositoryInterface):
         limit: int = 100
     ) -> List[MailEntity]:
         """ユーザーIDでメール一覧を取得"""
-        # ユーザーのメールを取得するにはcorner経由でprogramを辿る必要がある
-        from models import Corner, Program
         
-        query = (
-            self._db.query(Mail)
-            .join(Corner, Mail.corner_id == Corner.id)
-            .join(Program, Corner.program_id == Program.id)
-            .filter(Program.user_id == user_id)
-        )
+        query = self._db.query(Mail).filter(Mail.user_id == user_id)
         
         if status_filter:
             query = query.filter(Mail.status == status_filter)
@@ -63,6 +58,7 @@ class MailRepositoryImpl(MailRepositoryInterface):
             # 新規作成
             db_mail = Mail(
                 id=mail.id,
+                user_id=mail.user_id,
                 corner_id=mail.corner_id,
                 memo_id=mail.memo_id,
                 subject=mail.subject,
@@ -121,14 +117,8 @@ class MailRepositoryImpl(MailRepositoryInterface):
         limit: int = 100
     ) -> List[Mail]:
         """ユーザーIDでメール一覧を取得（後方互換性のため）"""
-        from models import Corner, Program
         
-        query = (
-            self._db.query(Mail)
-            .join(Corner, Mail.corner_id == Corner.id)
-            .join(Program, Corner.program_id == Program.id)
-            .filter(Program.user_id == user_id)
-        )
+        query = self._db.query(Mail).filter(Mail.user_id == user_id)
         
         if status_filter:
             query = query.filter(Mail.status == status_filter)
@@ -137,16 +127,7 @@ class MailRepositoryImpl(MailRepositoryInterface):
     
     def get_statistics(self, user_id: int) -> dict:
         """メール統計を取得（後方互換性のため）"""
-        from models import Corner, Program
-        from sqlalchemy import func
-        
-        mails = (
-            self._db.query(Mail)
-            .join(Corner, Mail.corner_id == Corner.id)
-            .join(Program, Corner.program_id == Program.id)
-            .filter(Program.user_id == user_id)
-            .all()
-        )
+        mails = self._db.query(Mail).filter(Mail.user_id == user_id).all()
         
         total = len(mails)
         draft = sum(1 for m in mails if m.status == "下書き")
@@ -167,6 +148,7 @@ class MailRepositoryImpl(MailRepositoryInterface):
         """DBモデルをエンティティに変換"""
         return MailEntity(
             id=db_mail.id,
+            user_id=db_mail.user_id,
             corner_id=db_mail.corner_id,
             memo_id=db_mail.memo_id,
             subject=db_mail.subject,

@@ -15,14 +15,12 @@ class ProgramEntity:
         title: str,
         email_address: Optional[EmailAddress] = None,
         broadcast_schedule: Optional[str] = None,
-        default_profile_id: Optional[int] = None
     ):
         self._id = id
         self._user_id = user_id
         self._title = title
         self._email_address = email_address
         self._broadcast_schedule = broadcast_schedule
-        self._default_profile_id = default_profile_id
     
     @property
     def id(self) -> int:
@@ -44,16 +42,11 @@ class ProgramEntity:
     def broadcast_schedule(self) -> Optional[str]:
         return self._broadcast_schedule
     
-    @property
-    def default_profile_id(self) -> Optional[int]:
-        return self._default_profile_id
-    
     def update_info(
         self,
         title: Optional[str] = None,
         email_address: Optional[EmailAddress] = None,
-        broadcast_schedule: Optional[str] = None,
-        default_profile_id: Optional[int] = None
+        broadcast_schedule: Optional[str] = None
     ) -> None:
         """番組情報を更新"""
         if title is not None:
@@ -66,9 +59,6 @@ class ProgramEntity:
         
         if broadcast_schedule is not None:
             self._broadcast_schedule = broadcast_schedule
-        
-        if default_profile_id is not None:
-            self._default_profile_id = default_profile_id
     
     def has_email_address(self) -> bool:
         """投稿先メールアドレスが設定されているか"""

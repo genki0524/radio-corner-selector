@@ -22,32 +22,6 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-
-# ========== Profile ==========
-class ProfileBase(BaseModel):
-    name: str = Field(..., max_length=100)
-    radio_name: str = Field(..., max_length=100)
-    real_name: Optional[str] = Field(None, max_length=100)
-    address: Optional[str] = Field(None, max_length=255)
-    phone: Optional[str] = Field(None, max_length=20)
-
-
-class ProfileCreate(ProfileBase):
-    user_id: int
-
-
-class ProfileUpdate(ProfileBase):
-    pass
-
-
-class ProfileResponse(ProfileBase):
-    id: int
-    user_id: int
-    
-    class Config:
-        from_attributes = True
-
-
 # ========== Personality ==========
 class PersonalityBase(BaseModel):
     name: str = Field(..., max_length=100)
@@ -97,14 +71,10 @@ class ProgramBase(BaseModel):
     title: str = Field(..., max_length=255)
     email_address: Optional[str] = Field(None, max_length=255)
     broadcast_schedule: Optional[str] = Field(None, max_length=255)
-    default_profile_id: Optional[int] = None
-
 
 class ProgramCreate(ProgramBase):
     user_id: int
     personality_ids: List[int] = Field(default_factory=list)
-    corners: List[CornerBase] = Field(default_factory=list)
-
 
 class ProgramUpdate(ProgramBase):
     personality_ids: Optional[List[int]] = None
@@ -150,6 +120,7 @@ class MailBase(BaseModel):
 
 
 class MailCreate(MailBase):
+    user_id: int
     corner_id: int
     memo_id: Optional[int] = None
 
@@ -163,6 +134,7 @@ class MailUpdate(BaseModel):
 
 class MailResponse(MailBase):
     id: int
+    user_id: int
     corner_id: int
     memo_id: Optional[int]
     sent_at: Optional[datetime]

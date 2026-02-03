@@ -1,6 +1,3 @@
-"""
-パーソナリティ管理ページ
-"""
 import streamlit as st
 import sys
 from pathlib import Path
@@ -12,13 +9,12 @@ from utils.styles import get_custom_css
 
 st.set_page_config(
     page_title="パーソナリティ管理",
-    page_icon="🎤",
     layout="centered",
 )
 
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("🎤 パーソナリティ管理")
+st.title("パーソナリティ管理")
 
 # 新規パーソナリティ登録
 with st.expander("新規パーソナリティを登録", expanded=False):
@@ -153,22 +149,3 @@ try:
 
 except Exception as e:
     st.error(f"パーソナリティの取得に失敗: {e}")
-
-# サイドバー
-with st.sidebar:
-    st.header("統計情報")
-    try:
-        total_personalities = len(api_client.get_personalities())
-        st.metric("総パーソナリティ数", f"{total_personalities}名")
-    except:
-        st.metric("総パーソナリティ数", "取得失敗")
-    
-    st.divider()
-    
-    st.header("操作")
-    if st.button("ダッシュボードへ", use_container_width=True):
-        st.switch_page("app.py")
-    if st.button("番組管理", use_container_width=True):
-        st.switch_page("pages/2_programs.py")
-    if st.button("メモ一覧", use_container_width=True):
-        st.switch_page("pages/1_memos.py")

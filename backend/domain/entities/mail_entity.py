@@ -12,16 +12,18 @@ class MailEntity:
     def __init__(
         self,
         id: int,
-        corner_id: int,
+        user_id: int,
         subject: str,
         body: str,
         status: MailStatus,
+        corner_id: Optional[int] = None,
         memo_id: Optional[int] = None,
         sent_at: Optional[datetime] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None
     ):
         self._id = id
+        self._user_id = user_id
         self._corner_id = corner_id
         self._memo_id = memo_id
         self._subject = subject
@@ -36,7 +38,11 @@ class MailEntity:
         return self._id
     
     @property
-    def corner_id(self) -> int:
+    def user_id(self) -> int:
+        return self._user_id
+    
+    @property
+    def corner_id(self) -> Optional[int]:
         return self._corner_id
     
     @property

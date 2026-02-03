@@ -1,11 +1,8 @@
 ```mermaid
 erDiagram
-    Users ||--o{ Profiles : "作成する"
     Users ||--o{ Programs : "管理する"
     Users ||--o{ Personalities : "登録する"
     Users ||--o{ Memos : "記録する"
-    
-    Profiles ||--o{ Programs : "紐づく"
     
     %% 多対多の関係解消用テーブル
     Programs ||--|{ Program_Personalities : "出演する"
@@ -19,16 +16,6 @@ erDiagram
         int id PK
         string email
         string password_hash
-    }
-
-    Profiles {
-        int id PK
-        int user_id FK
-        string name "管理用名称"
-        string radio_name "ラジオネーム"
-        string real_name "本名"
-        string address "住所"
-        string phone "電話番号"
     }
 
     Program_Personalities {

@@ -36,13 +36,11 @@ def get_program(db: Session, program_id: int) -> Optional[ProgramResponse]:
 def create_program(db: Session, program: ProgramCreate) -> ProgramResponse:
     """番組を作成"""
     program_data = program.model_dump(exclude={"personality_ids", "corners"})
-    corners_data = [c.model_dump() for c in program.corners] if program.corners else None
     
     repo = _get_repository(db)
     return repo.create_from_dict(
         program_data,
         program.personality_ids,
-        corners_data
     )
 
 
