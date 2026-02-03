@@ -8,7 +8,6 @@ from . import (
     corner_service,
     mail_service,
     personality_service,
-    profile_service,
 )
 
 __all__ = [
@@ -18,5 +17,4 @@ __all__ = [
     "corner_service",
     "mail_service",
     "personality_service",
-    "profile_service",
 ]

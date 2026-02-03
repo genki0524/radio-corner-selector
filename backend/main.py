@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from database import init_db, SessionLocal
-from routers import memos, profiles, personalities, programs, corners, mails, analyze
+from routers import memos, personalities, programs, corners, mails, analyze
 from models import User
 
 # FastAPIアプリケーション
@@ -27,7 +27,6 @@ app.add_middleware(
 
 # ルーター登録
 app.include_router(memos.router, prefix="/api")
-app.include_router(profiles.router, prefix="/api")
 app.include_router(personalities.router, prefix="/api")
 app.include_router(programs.router, prefix="/api")
 app.include_router(corners.router, prefix="/api")

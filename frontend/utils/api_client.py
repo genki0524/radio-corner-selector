@@ -59,37 +59,6 @@ class APIClient:
         if response.status_code != 204:
             raise Exception(f"Failed to delete memo: {response.status_code}")
     
-    # ========== プロフィール ==========
-    def get_profiles(self) -> List[Dict[str, Any]]:
-        """プロフィール一覧を取得"""
-        response = requests.get(
-            f"{self.api_base}/profiles",
-            params={"user_id": self.user_id}
-        )
-        return self._handle_response(response)
-    
-    def get_profile(self, profile_id: int) -> Dict[str, Any]:
-        """プロフィールを取得"""
-        response = requests.get(f"{self.api_base}/profiles/{profile_id}")
-        return self._handle_response(response)
-    
-    def create_profile(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """プロフィールを作成"""
-        data["user_id"] = self.user_id
-        response = requests.post(f"{self.api_base}/profiles", json=data)
-        return self._handle_response(response)
-    
-    def update_profile(self, profile_id: int, data: Dict[str, Any]) -> Dict[str, Any]:
-        """プロフィールを更新"""
-        response = requests.put(f"{self.api_base}/profiles/{profile_id}", json=data)
-        return self._handle_response(response)
-    
-    def delete_profile(self, profile_id: int) -> None:
-        """プロフィールを削除"""
-        response = requests.delete(f"{self.api_base}/profiles/{profile_id}")
-        if response.status_code != 204:
-            raise Exception(f"Failed to delete profile: {response.status_code}")
-    
     # ========== パーソナリティ ==========
     def get_personalities(self) -> List[Dict[str, Any]]:
         """パーソナリティ一覧を取得"""

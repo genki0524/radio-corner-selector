@@ -56,7 +56,6 @@ class ProgramRepositoryImpl(ProgramRepositoryInterface):
             db_program.title = program.title
             db_program.email_address = email_value
             db_program.broadcast_schedule = program.broadcast_schedule
-            db_program.default_profile_id = program.default_profile_id
         else:
             # 新規作成
             db_program = Program(
@@ -65,7 +64,6 @@ class ProgramRepositoryImpl(ProgramRepositoryInterface):
                 title=program.title,
                 email_address=email_value,
                 broadcast_schedule=program.broadcast_schedule,
-                default_profile_id=program.default_profile_id
             )
             self._db.add(db_program)
         
@@ -172,6 +170,5 @@ class ProgramRepositoryImpl(ProgramRepositoryInterface):
             user_id=db_program.user_id,
             title=db_program.title,
             email_address=email_addr,
-            broadcast_schedule=db_program.broadcast_schedule,
-            default_profile_id=db_program.default_profile_id
+            broadcast_schedule=db_program.broadcast_schedule
         )
