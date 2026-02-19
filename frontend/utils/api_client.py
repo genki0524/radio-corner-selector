@@ -89,6 +89,7 @@ class APIClient:
         response = requests.delete(f"{self.api_base}/personalities/{personality_id}")
         if response.status_code != 204:
             raise Exception(f"Failed to delete personality: {response.status_code}")
+        return None
     
     # ========== 番組 ==========
     def get_programs(
@@ -141,6 +142,11 @@ class APIClient:
         """コーナーを作成"""
         response = requests.post(f"{self.api_base}/corners", json=data)
         return self._handle_response(response)
+    
+    def delete_corner(self, corner_id: int) -> None:
+        response = requests.delete(f"{self.api_base}/corners/{corner_id}")
+        if response.status_code != 204:
+            raise Exception(f"Failed to delete corner: {response.status_code}")
     
     # ========== メール ==========
     def get_mails(self, status_filter: Optional[str] = None) -> List[Dict[str, Any]]:

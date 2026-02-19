@@ -1,4 +1,5 @@
 import streamlit as st
+import traceback
 import sys
 from pathlib import Path
 
@@ -138,6 +139,7 @@ try:
                                     del st.session_state[f"confirm_delete_{personality['id']}"]
                                     st.rerun()
                                 except Exception as e:
+                                    traceback.print_exc()
                                     st.error(f"削除エラー: {e}")
                         
                         with col_no:
