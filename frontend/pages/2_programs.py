@@ -1,5 +1,6 @@
 import streamlit as st
 import sys
+import traceback
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
@@ -123,7 +124,7 @@ try:
                         st.markdown(f"**パーソナリティ:** {', '.join(personality_names)}")
                 
                 with col2:
-                    if st.button("編集", key=f"edit_program_{program['id']}", use_container_width=True):
+                    if st.button("編集", key=f"edit_program_{program['id']}", use_container_width=True, disabled=True):
                         st.info("編集機能は実装予定です")
                     if st.button("削除", key=f"delete_program_{program['id']}", use_container_width=True):
                         try:
@@ -142,18 +143,30 @@ try:
                     st.info("コーナーが登録されていません")
                 else:
                     for corner in corners:
-                        st.markdown(
-                            f"""
+                        col1, col2 = st.columns([3, 1])
+                        with col1:
+                            st.markdown(
+                                f"""
                             <div class="corner-card">
-                                <h4>{corner['title']}</h4>
+                                <h4>{corner["title"]}</h4>
                                 <div class="corner-description">
                                     <strong>AI解析用説明:</strong><br>
-                                    {corner['description_for_llm']}
+                                    {corner["description_for_llm"]}
                                 </div>
                             </div>
                             """,
-                            unsafe_allow_html=True,
-                        )
+                                unsafe_allow_html=True,
+                            )
+                        with col2:
+                            if st.button("削除", key=f"delete_corner_{corner['id']}", use_container_width=True):
+                                try:
+                                    api_client.delete_corner(corner['id'])
+                                    st.success("コーナーを削除しました")
+                                    st.rerun()
+                                except Exception as e:
+                                    traceback.print_exc()
+                                    st.error(f"削除エラー: {e}")
+
                 
                 # コーナー追加フォームの表示状態を管理
                 add_corner_key = f"adding_corner_{program['id']}"
