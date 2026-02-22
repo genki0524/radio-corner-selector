@@ -187,6 +187,6 @@ erDiagram
 複数の局・番組にまたがる投稿履歴を一箇所で管理できるようにしました。送信日時や採用・不採用のステータスを記録することで、「どの番組に何を送ったか」「どのネタが採用されたか」を振り返ることができ、今後の投稿戦略の参考になります。
 
 ### デモ動画
-Uploading デモ動画01.mp4…
+[![動画のタイトル](https://www.youtube.com/watch?v=SkjZMcSuay0/0.jpg)](https://youtu.be/SkjZMcSuay0)
 
 
