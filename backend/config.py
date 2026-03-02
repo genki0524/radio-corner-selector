@@ -2,7 +2,7 @@
 環境変数と設定管理
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from typing import Union
 
 class Settings(BaseSettings):
@@ -18,17 +18,13 @@ class Settings(BaseSettings):
     
     # Google Gemini API
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-pro"
-    
-    # LangChain & LLM Settings
-    # HuggingFace Embedding Model
-    embedding_model_name: str = "intfloat/multilingual-e5-large"
-    embedding_dimension: int = 1024
-    
-    # Ollama LLM Settings
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "qwen2.5:latest"
-    ollama_temperature: float = 0.7
+    gemini_model: str = "gemini-2.0-flash"
+    gemini_temperature: float = 0.7
+
+    # OpenAI API
+    openai_api_key: str = ""
+    openai_embedding_model: str = "text-embedding-3-small"
+    embedding_dimension: int = Field(default=1536, le=1536)
     
     # アプリケーション
     app_name: str = "Radio Corner Selector API"
@@ -46,4 +42,4 @@ class Settings(BaseSettings):
         return v
 
 
-settings = Settings()
+settings = Settings(embedding_dimension=1024)

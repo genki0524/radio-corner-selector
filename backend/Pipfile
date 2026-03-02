@@ -16,11 +16,10 @@ google-genai = "*"
 psycopg2-binary = "*"
 pgvector = "*"
 langchain = "*"
-langchain-ollama = "*"
-langchain-huggingface = "*"
+langchain-openai = "*"
+langchain-google-genai = "*"
 langchain-postgres = "*"
 alembic = "*"
-sentence-transformers = "*"
 
 [dev-packages]
 pytest = "*"

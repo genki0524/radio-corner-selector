@@ -2,8 +2,8 @@
 LangChainを使用した埋め込みとLLM推論サービス
 """
 from typing import List, Dict, Optional
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_ollama import OllamaLLM
+from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 
 from config import settings
@@ -13,12 +13,11 @@ class EmbeddingService:
     """埋め込みベクトル生成サービス"""
     
     def __init__(self):
-        """HuggingFace埋め込みモデルを初期化"""
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name=settings.embedding_model_name,
-            model_kwargs={
-                'device': 'cpu',
-            }
+        """OpenAI埋め込みモデルを初期化"""
+        self.embeddings = OpenAIEmbeddings(
+            model=settings.openai_embedding_model,
+            api_key=settings.openai_api_key,
+            dimensions=settings.embedding_dimension,
         )
     
     def embed_text(self, text: str) -> List[float]:
@@ -50,11 +49,11 @@ class LLMReasoningService:
     """LLM推論サービス"""
     
     def __init__(self):
-        """Ollama LLMを初期化"""
-        self.llm = OllamaLLM(
-            base_url=settings.ollama_base_url,
-            model=settings.ollama_model,
-            temperature=settings.ollama_temperature
+        """Gemini LLMを初期化"""
+        self.llm = ChatGoogleGenerativeAI(
+            model=settings.gemini_model,
+            google_api_key=settings.gemini_api_key,
+            temperature=settings.gemini_temperature,
         )
     
     def recommend_corner(
