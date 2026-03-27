@@ -4,14 +4,25 @@ Google Gemini APIを使用してメモの内容を解析し、最適なコーナ
 """
 
 import json
+import logging
 from typing import List
 
 from google import genai
+from google.genai import errors as genai_errors
 from sqlalchemy.orm import Session
 
 from config import settings
 from cruds import analyze as analyze_crud
 from services.langchain_service import get_embedding_service
+
+logger = logging.getLogger(__name__)
+
+
+def _fallback_recommendation(corners_info: List[dict], reason: str) -> List[dict]:
+    """エラー時のフォールバック推薦（ベクトル検索の先頭候補を返す）"""
+    if not corners_info:
+        return []
+    return [{"corner_id": corners_info[0]["id"], "score": 0.0, "reason": reason}]
 
 
 def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> List[dict]:
@@ -25,34 +36,20 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
     Returns:
         推奨コーナーのリスト
     """
-
     if not settings.gemini_api_key:
-        # APIキーが設定されていない場合はモックデータを返す
-        print("APIキーが設定されていません。")
-        return (
-            [
-                {
-                    "corner_id": corners_info[0]["id"],
-                    "score": 0.85,
-                    "reason": "メモの内容がこのコーナーの趣旨と合致しています。（モックレスポンス）",
-                }
-            ]
-            if corners_info
-            else []
-        )
+        logger.warning("Gemini APIキーが設定されていません。フォールバックを返します。")
+        return _fallback_recommendation(corners_info, "APIキーが未設定のため、ベクトル検索の結果を使用しています。")
 
-    try:
-        client = genai.Client()
+    client = genai.Client()
 
-        # プロンプト作成
-        corners_text = "\n\n".join(
-            [
-                f"ID: {c['id']}\n番組: {c['program_title']}\nコーナー: {c['corner_title']}\n説明: {c['description']}"
-                for c in corners_info
-            ]
-        )
+    corners_text = "\n\n".join(
+        [
+            f"ID: {c['id']}\n番組: {c['program_title']}\nコーナー: {c['corner_title']}\n説明: {c['description']}"
+            for c in corners_info
+        ]
+    )
 
-        prompt = f"""
+    prompt = f"""
 以下のメモ内容を分析し、最適な投稿先コーナーを推奨してください。
 
 【メモ内容】
@@ -80,35 +77,34 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
 - JSONのみを返し、他のテキストは含めない
 """
 
+    try:
         response = client.models.generate_content(
             model=settings.gemini_model, contents=prompt
         )
+    except genai_errors.ClientError as e:
+        logger.error("Gemini APIクライアントエラー (status=%s): %s", e.status_code, e)
+        return _fallback_recommendation(corners_info, "APIエラーが発生しました。手動で選択してください。")
+    except genai_errors.ServerError as e:
+        logger.error("Gemini APIサーバーエラー (status=%s): %s", e.status_code, e)
+        return _fallback_recommendation(corners_info, "APIサーバーエラーが発生しました。手動で選択してください。")
 
-        # レスポンスをパース
-        response_text = response.text.strip()
-        # ```json ... ``` を削除
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
+    if not response.text:
+        logger.warning("Gemini APIのレスポンスが空です（安全フィルターによりブロックされた可能性があります）")
+        return _fallback_recommendation(corners_info, "レスポンスが取得できませんでした。手動で選択してください。")
 
-        recommendations = json.loads(response_text.strip())
-        return recommendations
+    # レスポンスをパース
+    response_text = response.text.strip()
+    # ```json ... ``` を削除
+    if response_text.startswith("```json"):
+        response_text = response_text[7:]
+    if response_text.endswith("```"):
+        response_text = response_text[:-3]
 
-    except Exception as e:
-        print(f"Gemini API Error: {e}")
-        # エラー時はモックデータを返す
-        return (
-            [
-                {
-                    "corner_id": corners_info[0]["id"],
-                    "score": 0.75,
-                    "reason": "自動解析中にエラーが発生しました。手動で選択してください。",
-                }
-            ]
-            if corners_info
-            else []
-        )
+    try:
+        return json.loads(response_text.strip())
+    except json.JSONDecodeError as e:
+        logger.error("GeminiレスポンスのJSONパースに失敗しました: %s\nレスポンス: %s", e, response_text)
+        return _fallback_recommendation(corners_info, "レスポンスの解析に失敗しました。手動で選択してください。")
 
 
 def analyze_memo_with_vector_search(
