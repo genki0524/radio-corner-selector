@@ -1,17 +1,19 @@
 """
 LangChainを使用した埋め込みとLLM推論サービス
 """
-from typing import List, Dict, Optional
-from langchain_openai import OpenAIEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
+
+from typing import Dict, List, Optional
+
 from langchain_core.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import OpenAIEmbeddings
 
 from config import settings
 
 
 class EmbeddingService:
     """埋め込みベクトル生成サービス"""
-    
+
     def __init__(self):
         """OpenAI埋め込みモデルを初期化"""
         self.embeddings = OpenAIEmbeddings(
@@ -19,26 +21,26 @@ class EmbeddingService:
             api_key=settings.openai_api_key,
             dimensions=settings.embedding_dimension,
         )
-    
+
     def embed_text(self, text: str) -> List[float]:
         """
         テキストを埋め込みベクトルに変換
-        
+
         Args:
             text: 埋め込み対象のテキスト
-            
+
         Returns:
             埋め込みベクトル
         """
         return self.embeddings.embed_query(text)
-    
+
     def embed_texts(self, texts: List[str]) -> List[List[float]]:
         """
         複数テキストを埋め込みベクトルに変換
-        
+
         Args:
             texts: 埋め込み対象のテキストリスト
-            
+
         Returns:
             埋め込みベクトルのリスト
         """
@@ -47,7 +49,7 @@ class EmbeddingService:
 
 class LLMReasoningService:
     """LLM推論サービス"""
-    
+
     def __init__(self):
         """Gemini LLMを初期化"""
         self.llm = ChatGoogleGenerativeAI(
@@ -55,27 +57,24 @@ class LLMReasoningService:
             google_api_key=settings.gemini_api_key,
             temperature=settings.gemini_temperature,
         )
-    
+
     def recommend_corner(
-        self,
-        memo_content: str,
-        candidate_corners: List[Dict],
-        max_candidates: int = 5
+        self, memo_content: str, candidate_corners: List[Dict], max_candidates: int = 5
     ) -> Dict:
         """
         メモ内容から最適なコーナーを推薦
-        
+
         Args:
             memo_content: メモの内容
             candidate_corners: ベクトル検索で見つかった候補コーナー
             max_candidates: 推論に使用する最大候補数
-            
+
         Returns:
             推薦結果（corner_id, score, reasoning）
         """
         # 候補を制限
         candidates = candidate_corners[:max_candidates]
-        
+
         # プロンプトテンプレートを作成
         template = """あなたはラジオ番組のコーナー選択アシスタントです。
 以下のメモ内容に最も適したラジオコーナーを選択し、理由を説明してください。
@@ -96,26 +95,24 @@ class LLMReasoningService:
 スコア: [0.0-1.0]
 理由: [選択理由]
 """
-        
+
         # コーナー情報をフォーマット
         corners_info = self._format_corners_info(candidates)
-        
+
         # プロンプトを作成
         prompt = PromptTemplate(
-            input_variables=["memo_content", "corners_info"],
-            template=template
+            input_variables=["memo_content", "corners_info"], template=template
         )
-        
+
         # LLM推論を実行（LCEL使用）
         chain = prompt | self.llm
-        result = chain.invoke({
-            "memo_content": memo_content,
-            "corners_info": corners_info
-        })
-        
+        result = chain.invoke(
+            {"memo_content": memo_content, "corners_info": corners_info}
+        )
+
         # 結果をパース
         return self._parse_llm_response(result, candidates)
-    
+
     def _format_corners_info(self, corners: List[Dict]) -> str:
         """コーナー情報を整形"""
         formatted = []
@@ -127,19 +124,15 @@ class LLMReasoningService:
                 f"   類似度: {corner.get('similarity', 0.0):.3f}"
             )
         return "\n\n".join(formatted)
-    
-    def _parse_llm_response(
-        self,
-        response: str,
-        candidates: List[Dict]
-    ) -> Dict:
+
+    def _parse_llm_response(self, response: str, candidates: List[Dict]) -> Dict:
         """LLMのレスポンスをパース"""
-        lines = response.strip().split('\n')
-        
+        lines = response.strip().split("\n")
+
         corner_id = None
         score = 0.5  # デフォルトスコア
         reasoning = ""
-        
+
         for line in lines:
             line = line.strip()
             if line.startswith("推薦コーナーID:") or line.startswith("推奨コーナーID:"):
@@ -156,33 +149,27 @@ class LLMReasoningService:
                     pass
             elif line.startswith("理由:"):
                 reasoning = line.split(":", 1)[-1].strip()
-        
+
         # corner_idが取得できない場合は最初の候補を使用
         if corner_id is None and candidates:
             corner_id = candidates[0]["id"]
-        
+
         # 理由が取得できない場合はデフォルトメッセージ
         if not reasoning:
             reasoning = "ベクトル類似度に基づく推薦です。"
-        
-        return {
-            "corner_id": corner_id,
-            "score": score,
-            "reasoning": reasoning
-        }
-    
+
+        return {"corner_id": corner_id, "score": score, "reasoning": reasoning}
+
     def analyze_memo_for_corners(
-        self,
-        memo_content: str,
-        all_corners: List[Dict]
+        self, memo_content: str, all_corners: List[Dict]
     ) -> List[Dict]:
         """
         メモ内容を分析し、各コーナーとの適合度を評価
-        
+
         Args:
             memo_content: メモの内容
             all_corners: 全コーナーのリスト
-            
+
         Returns:
             各コーナーの評価結果リスト
         """
@@ -199,36 +186,32 @@ class LLMReasoningService:
 以下の形式で回答:
 コーナーID [id]: スコア [score]
 """
-        
-        corners_list = "\n".join([
-            f"- ID: {c['id']}, タイトル: {c['title']}, 説明: {c['description_for_llm']}"
-            for c in all_corners
-        ])
-        
-        prompt = PromptTemplate(
-            input_variables=["memo_content", "corners_list"],
-            template=template
+
+        corners_list = "\n".join(
+            [
+                f"- ID: {c['id']}, タイトル: {c['title']}, 説明: {c['description_for_llm']}"
+                for c in all_corners
+            ]
         )
-        
+
+        prompt = PromptTemplate(
+            input_variables=["memo_content", "corners_list"], template=template
+        )
+
         # LLM推論を実行（LCEL使用）
         chain = prompt | self.llm
-        result = chain.invoke({
-            "memo_content": memo_content,
-            "corners_list": corners_list
-        })
-        
+        result = chain.invoke(
+            {"memo_content": memo_content, "corners_list": corners_list}
+        )
+
         # 結果をパースして各コーナーのスコアを抽出
         return self._parse_multiple_scores(result, all_corners)
-    
-    def _parse_multiple_scores(
-        self,
-        response: str,
-        corners: List[Dict]
-    ) -> List[Dict]:
+
+    def _parse_multiple_scores(self, response: str, corners: List[Dict]) -> List[Dict]:
         """複数コーナーのスコアをパース"""
         scores = {}
-        lines = response.strip().split('\n')
-        
+        lines = response.strip().split("\n")
+
         for line in lines:
             if ":" in line:
                 try:
@@ -244,15 +227,12 @@ class LLMReasoningService:
                         scores[corner_id] = score
                 except (ValueError, IndexError):
                     continue
-        
+
         # 結果を構築
         results = []
         for corner in corners:
-            results.append({
-                **corner,
-                "llm_score": scores.get(corner["id"], 0.5)
-            })
-        
+            results.append({**corner, "llm_score": scores.get(corner["id"], 0.5)})
+
         return results
 
 
