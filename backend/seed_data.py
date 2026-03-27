@@ -16,7 +16,7 @@ from models import (
     Program,
     User,
 )
-from services.langchain_service import EmbeddingService
+from services.langchain_service import get_embedding_service
 
 
 def seed_data(clear_existing: bool = False):
@@ -144,11 +144,12 @@ def seed_data(clear_existing: bool = False):
                 "イベント情報、観光スポット、グルメ情報など。",
             ),
         ]
-        corners = []
-        for corner_info in corner_data:
-            embedding_service = EmbeddingService()
-            embedded_description = embedding_service.embed_text(corner_info[2])
+        embedding_service = get_embedding_service()
+        descriptions = [info[2] for info in corner_data]
+        embedded_descriptions = embedding_service.embed_texts(descriptions)
 
+        corners = []
+        for corner_info, embedded_description in zip(corner_data, embedded_descriptions):
             corner = Corner(
                 program_id=corner_info[0],
                 title=corner_info[1],

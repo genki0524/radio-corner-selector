@@ -10,9 +10,8 @@ from google import genai
 from sqlalchemy.orm import Session
 
 from config import settings
-from cruds import programs as program_crud
 from cruds import analyze as analyze_crud
-from services.langchain_service import EmbeddingService
+from services.langchain_service import get_embedding_service
 
 
 def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> List[dict]:
@@ -85,8 +84,6 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
             model=settings.gemini_model, contents=prompt
         )
 
-        print(response)
-
         # レスポンスをパース
         response_text = response.text.strip()
         # ```json ... ``` を削除
@@ -115,24 +112,25 @@ def analyze_memo_with_gemini(memo_content: str, corners_info: List[dict]) -> Lis
 
 
 def analyze_memo_with_vector_search(
-    db: Session, memo_content: str, max_candidates: int = 10
+    db: Session, user_id: int, memo_content: str, max_candidates: int = 10
 ) -> List[dict]:
     """
     ベクトル検索を使用してメモを解析
 
     Args:
         db: データベースセッション
+        user_id: ユーザーID
         memo_content: メモの内容
         max_candidates: 最大候補数
     Returns:
         類似度の高いコーナーのリスト
     """
-    embedding_service = EmbeddingService()
+    embedding_service = get_embedding_service()
     embedded_memo = embedding_service.embed_text(memo_content)
 
-    similality_threshold = 0.3 # 類似度の閾値
+    similarity_threshold = 0.08
     rows = analyze_crud.search_corners_by_embedding(
-        db, embedded_memo, similality_threshold, max_candidates
+        db, user_id, embedded_memo, similarity_threshold, max_candidates
     )
 
     return [
@@ -141,6 +139,7 @@ def analyze_memo_with_vector_search(
             "program_id": row.program_id,
             "title": row.title,
             "description_for_llm": row.description_for_llm,
+            "program_title": row.program_title,
             "similarity": row.similarity,
         }
         for row in rows
@@ -164,25 +163,22 @@ def analyze_memo_for_corners(db: Session, memo_id: int, user_id: int) -> dict:
     if not memo:
         return None
 
-    # ユーザーの全コーナー情報を取得
-    corners = analyze_crud.get_user_corners(db, user_id)
-
-    if not corners:
-        return {"memo_id": memo_id, "recommendations": [], "error": "No corners found"}
-
     # ベクトル検索で類似コーナーを取得
-    vector_search_results = analyze_memo_with_vector_search(db, memo.content, 10)
+    vector_search_results = analyze_memo_with_vector_search(db, user_id, memo.content, 10)
+
+    if not vector_search_results:
+        return {"memo_id": memo_id, "recommendations": [], "error": "No matching corners found"}
 
     # Gemini用のコーナー情報を整形
     corners_info = [
         {
-            "id": vector_search_results.id,
-            "program_id": vector_search_results.program_id,
-            "program_title": program_crud.get_program(db, vector_search_results.program_id).title,
-            "corner_title": vector_search_results.title,
-            "description": vector_search_results.description_for_llm,
+            "id": result["id"],
+            "program_id": result["program_id"],
+            "program_title": result["program_title"],
+            "corner_title": result["title"],
+            "description": result["description_for_llm"],
         }
-        for vector_search_results in vector_search_results
+        for result in vector_search_results
     ]
 
     # Gemini APIで解析
