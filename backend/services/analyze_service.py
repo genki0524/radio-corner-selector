@@ -10,6 +10,7 @@ from google import genai
 from sqlalchemy.orm import Session
 
 from config import settings
+from cruds import programs as program_crud
 from cruds import analyze as analyze_crud
 from services.langchain_service import EmbeddingService
 
@@ -129,7 +130,7 @@ def analyze_memo_with_vector_search(
     embedding_service = EmbeddingService()
     embedded_memo = embedding_service.embed_text(memo_content)
 
-    similality_threshold = 0.8
+    similality_threshold = 0.3 # 類似度の閾値
     rows = analyze_crud.search_corners_by_embedding(
         db, embedded_memo, similality_threshold, max_candidates
     )
@@ -169,16 +170,19 @@ def analyze_memo_for_corners(db: Session, memo_id: int, user_id: int) -> dict:
     if not corners:
         return {"memo_id": memo_id, "recommendations": [], "error": "No corners found"}
 
+    # ベクトル検索で類似コーナーを取得
+    vector_search_results = analyze_memo_with_vector_search(db, memo.content, 10)
+
     # Gemini用のコーナー情報を整形
     corners_info = [
         {
-            "id": corner.id,
-            "program_id": program.id,
-            "program_title": program.title,
-            "corner_title": corner.title,
-            "description": corner.description_for_llm,
+            "id": vector_search_results.id,
+            "program_id": vector_search_results.program_id,
+            "program_title": program_crud.get_program(db, vector_search_results.program_id).title,
+            "corner_title": vector_search_results.title,
+            "description": vector_search_results.description_for_llm,
         }
-        for corner, program in corners
+        for vector_search_results in vector_search_results
     ]
 
     # Gemini APIで解析
