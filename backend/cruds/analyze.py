@@ -25,30 +25,22 @@ def get_user_corners(db: Session, user_id: int) -> List[Tuple[Corner, Program]]:
 
 
 def search_corners_by_embedding(
-    db: Session, embedding: List[float], threshold: float, limit: int
+    db: Session, user_id: int, embedding: List[float], threshold: float, limit: int
 ) -> list:
-    """ベクトル検索でコーナーを取得"""
-    # SQL = text("""
-    # SELECT id, program_id, title, description_for_llm, similarity
-    # FROM (
-    #     SELECT id, program_id, title, description_for_llm,
-    #            (1 - (embedded_description <=> :embedding)) AS similarity
-    #     FROM corners
-    # ) sub
-    # WHERE similarity > :threshold
-    # ORDER BY similarity DESC
-    # LIMIT :limit
-    # """)
+    """ベクトル検索でコーナーを取得（user_idでフィルタ、program_titleをJOINで取得）"""
     SQL = text("""
-    SELECT id, program_id, title, description_for_llm, similarity
+    SELECT id, program_id, title, description_for_llm, program_title, similarity
     FROM (
-        SELECT id, program_id, title, description_for_llm,
-               (1 - (embedded_description <=> :embedding)) AS similarity
-        FROM corners
+        SELECT c.id, c.program_id, c.title, c.description_for_llm, p.title AS program_title,
+               (1 - (c.embedded_description <=> :embedding)) AS similarity
+        FROM corners c
+        JOIN programs p ON c.program_id = p.id
+        WHERE p.user_id = :user_id
     ) sub
+    WHERE similarity > :threshold
     ORDER BY similarity DESC
     LIMIT :limit
     """)
-    result = db.execute(SQL, {"embedding": str(embedding), "threshold": threshold, "limit": limit})
+    result = db.execute(SQL, {"embedding": str(embedding), "user_id": user_id, "threshold": threshold, "limit": limit})
 
     return result.fetchall()
