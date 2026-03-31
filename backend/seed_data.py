@@ -2,32 +2,35 @@
 初期データ投入スクリプト
 テスト用のサンプルデータをデータベースに投入
 """
+
 from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, init_db
 from models import (
-    User,
+    Corner,
+    Mail,
+    Memo,
     Personality,
     Program,
-    Corner,
-    Memo,
-    Mail,
+    User,
 )
+from services.langchain_service import get_embedding_service
 
 
 def seed_data(clear_existing: bool = False):
     """初期データを投入
-    
+
     Args:
         clear_existing: 既存データをクリアするかどうか（デフォルト: False）
     """
     db: Session = SessionLocal()
-    
+
     try:
         # データベース初期化
         init_db()
-        
+
         # 既存データのクリア（オプション）
         if clear_existing:
             db.query(Mail).delete()
@@ -44,17 +47,17 @@ def seed_data(clear_existing: bool = False):
             if user_count > 0:
                 print("ℹ️  既にデータが存在します。処理をスキップします。")
                 return
-        
+
         # ユーザー作成
         user = User(
             email="user@example.com",
-            password_hash="hashed_password_here"  # 実際はハッシュ化する
+            password_hash="hashed_password_here",  # 実際はハッシュ化する
         )
         db.add(user)
         db.commit()
         db.refresh(user)
         print(f"✅ ユーザー作成: {user.email}")
-        
+
         # パーソナリティ作成
         personalities = [
             Personality(user_id=user.id, name="佐藤健太", nickname="けんちゃん"),
@@ -66,7 +69,7 @@ def seed_data(clear_existing: bool = False):
             db.add(personality)
         db.commit()
         print(f"✅ パーソナリティ作成: {len(personalities)}件")
-        
+
         # 番組作成
         program1 = Program(
             user_id=user.id,
@@ -78,7 +81,7 @@ def seed_data(clear_existing: bool = False):
         db.add(program1)
         db.commit()
         db.refresh(program1)
-        
+
         program2 = Program(
             user_id=user.id,
             title="レイトナイト・ジャズ",
@@ -89,7 +92,7 @@ def seed_data(clear_existing: bool = False):
         db.add(program2)
         db.commit()
         db.refresh(program2)
-        
+
         program3 = Program(
             user_id=user.id,
             title="週末トーク",
@@ -100,52 +103,64 @@ def seed_data(clear_existing: bool = False):
         db.add(program3)
         db.commit()
         db.refresh(program3)
-        
-        print(f"✅ 番組作成: 3件")
-        
+
+        print("✅ 番組作成: 3件")
+
         # コーナー作成
-        corners = [
-            Corner(
-                program_id=program1.id,
-                title="街角スポットライト",
-                description_for_llm="地域の人々や店舗を紹介するコーナー。人間味のあるエピソードや、地域に根ざした活動について。",
+        corner_data = [
+            (
+                program1.id,
+                "街角スポットライト",
+                "地域の人々や店舗を紹介するコーナー。人間味のあるエピソードや、地域に根ざした活動について。",
             ),
-            Corner(
-                program_id=program1.id,
-                title="朝のニュース解説",
-                description_for_llm="時事ニュースをわかりやすく解説。政治、経済、社会問題など。",
+            (
+                program1.id,
+                "朝のニュース解説",
+                "時事ニュースをわかりやすく解説。政治、経済、社会問題など。",
             ),
-            Corner(
-                program_id=program1.id,
-                title="リスナーの質問箱",
-                description_for_llm="リスナーからの質問に答えるコーナー。日常の疑問、悩み相談など。",
+            (
+                program1.id,
+                "リスナーの質問箱",
+                "リスナーからの質問に答えるコーナー。日常の疑問、悩み相談など。",
             ),
-            Corner(
-                program_id=program1.id,
-                title="今日の一曲",
-                description_for_llm="音楽リクエストコーナー。思い出の曲、おすすめの曲の紹介。",
+            (
+                program1.id,
+                "今日の一曲",
+                "音楽リクエストコーナー。思い出の曲、おすすめの曲の紹介。",
             ),
-            Corner(
-                program_id=program2.id,
-                title="ジャズの歴史",
-                description_for_llm="ジャズの歴史やアーティストについて深掘り。名盤紹介など。",
+            (
+                program2.id,
+                "ジャズの歴史",
+                "ジャズの歴史やアーティストについて深掘り。名盤紹介など。",
             ),
-            Corner(
-                program_id=program2.id,
-                title="深夜の雑談",
-                description_for_llm="リラックスした雰囲気での自由な雑談。日常のふとした気づきなど。",
+            (
+                program2.id,
+                "深夜の雑談",
+                "リラックスした雰囲気での自由な雑談。日常のふとした気づきなど。",
             ),
-            Corner(
-                program_id=program3.id,
-                title="週末のおでかけ情報",
-                description_for_llm="イベント情報、観光スポット、グルメ情報など。",
+            (
+                program3.id,
+                "週末のおでかけ情報",
+                "イベント情報、観光スポット、グルメ情報など。",
             ),
         ]
-        for corner in corners:
+        embedding_service = get_embedding_service()
+        descriptions = [info[2] for info in corner_data]
+        embedded_descriptions = embedding_service.embed_texts(descriptions)
+
+        corners = []
+        for corner_info, embedded_description in zip(corner_data, embedded_descriptions):
+            corner = Corner(
+                program_id=corner_info[0],
+                title=corner_info[1],
+                description_for_llm=corner_info[2],
+                embedded_description=embedded_description,
+            )
+            corners.append(corner)
             db.add(corner)
         db.commit()
-        print(f"✅ コーナー作成: {len(corners)}件")
-        
+        print(f"✅ コーナー作成: {len(corner_data)}件")
+
         # メモ作成
         memos = [
             Memo(
@@ -178,10 +193,11 @@ def seed_data(clear_existing: bool = False):
             db.add(memo)
         db.commit()
         print(f"✅ メモ作成: {len(memos)}件")
-        
+
         # メール作成
         mails = [
             Mail(
+                user_id=user.id,
                 corner_id=corners[0].id,
                 memo_id=memos[0].id,
                 subject="街角スポットライト：駅前喫茶店の話",
@@ -191,6 +207,7 @@ def seed_data(clear_existing: bool = False):
                 updated_at=datetime.now() - timedelta(hours=1),
             ),
             Mail(
+                user_id=user.id,
                 corner_id=corners[3].id,
                 memo_id=None,
                 subject="今日の一曲リクエスト",
@@ -201,6 +218,7 @@ def seed_data(clear_existing: bool = False):
                 updated_at=datetime.now() - timedelta(days=5),
             ),
             Mail(
+                user_id=user.id,
                 corner_id=corners[2].id,
                 memo_id=None,
                 subject="質問：コーヒーの淹れ方について",
@@ -215,16 +233,16 @@ def seed_data(clear_existing: bool = False):
             db.add(mail)
         db.commit()
         print(f"✅ メール作成: {len(mails)}件")
-        
+
         print("\n✨ 初期データの投入が完了しました！")
-        print(f"\n📊 投入データサマリー:")
-        print(f"  - ユーザー: 1件")
+        print("\n📊 投入データサマリー:")
+        print("  - ユーザー: 1件")
         print(f"  - パーソナリティ: {len(personalities)}件")
-        print(f"  - 番組: 3件")
+        print("  - 番組: 3件")
         print(f"  - コーナー: {len(corners)}件")
         print(f"  - メモ: {len(memos)}件")
         print(f"  - メール: {len(mails)}件")
-        
+
     except Exception as e:
         print(f"❌ エラーが発生しました: {e}")
         db.rollback()

@@ -24,15 +24,15 @@ class Settings(BaseSettings):
     # OpenAI API
     openai_api_key: str = ""
     openai_embedding_model: str = "text-embedding-3-small"
-    embedding_dimension: int = Field(default=1536, le=1536)
-    
+    embedding_dimension: int = Field(default=1024, le=1536)
+
     # アプリケーション
     app_name: str = "Radio Corner Selector API"
     debug: bool = True
-    
+
     # CORS (環境変数からはカンマ区切り文字列またはリストとして受け取る)
     cors_origins: Union[str, list[str]] = ["http://localhost:8501", "http://localhost:3000"]
-    
+
     @field_validator('cors_origins', mode='before')
     @classmethod
     def parse_cors_origins(cls, v):
@@ -42,4 +42,4 @@ class Settings(BaseSettings):
         return v
 
 
-settings = Settings(embedding_dimension=1024)
+settings = Settings()

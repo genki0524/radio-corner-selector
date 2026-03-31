@@ -24,6 +24,7 @@ alembic = "*"
 [dev-packages]
 pytest = "*"
 httpx = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"
